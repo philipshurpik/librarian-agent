@@ -1,0 +1,559 @@
+[
+  {
+    "id": "bk-001",
+    "title": "  Designing Data-Intensive Applications ",
+    "attributes": {"author": "Martin Kleppmann", "topic": "distributed-systems", "year": 2017, "level": "intermediate"},
+    "description": "Data is at the center of many challenges in system design today. Difficult issues need to be figured out, such as scalability, consistency, reliability, efficiency, and maintainability. In addition, we have an overwhelming variety of tools, including relational databases, NoSQL datastores, stream and batch processors, and message brokers. What are the right choices for your application? How do you make sense of all these buzzwords?\n\nThis book examines the pros and cons of various technologies for processing and storing data, helping you decide which of them is appropriate for which purpose. Software keeps changing, but the fundamental principles remain the same, and this book teaches those principles: it peers under the hood of the systems you already use, and teaches you how to use and operate them more effectively. The first part of the book lays foundations: reliability, scalability, and maintainability as engineering concerns; data models and query languages, from relational to document to graph; storage engines, comparing B-trees with log-structured merge trees; and encoding, evolution, and schema compatibility across service boundaries.\n\nThe second part turns to distributed data. Replication chapters walk through single-leader, multi-leader, and leaderless designs, replication lag, and the anomalies that emerge when reads race writes. Partitioning covers key-range and hash strategies, secondary indexes, and rebalancing. The transactions chapter is one of the clearest treatments in print of weak isolation levels — read committed, snapshot isolation, and the write skew anomalies that serializable isolation exists to prevent. Two chapters on the troubles of distributed systems — unreliable networks, clocks you cannot trust, process pauses — set up a careful treatment of consensus, linearizability, and total order broadcast, explaining what systems like ZooKeeper actually give you and at what cost.\n\nThe third part looks at derived data: batch processing with MapReduce and its successors, stream processing with logs and change data capture, and the idea of turning the database inside out — rebuilding caches, indexes, and materialized views as consumers of an event log. The closing chapter sketches how to combine these tools into reliable end-to-end systems, including a sober discussion of exactly-once semantics, idempotence, and why end-to-end correctness cannot be delegated entirely to any single layer of infrastructure.\n\nKleppmann writes for engineers who build things: every abstract concept is anchored in the behavior of real systems — PostgreSQL, Kafka, Cassandra, HBase, ZooKeeper — with an unusual density of references to the research literature for readers who want to go deeper. The book has aged remarkably well precisely because it teaches the trade-offs behind the tools rather than the tools themselves. If you only ever read one book about databases and distributed systems, engineers across the industry will most often point you at this one. It rewards a cover-to-cover read, then earns a permanent spot within arm's reach as a reference you will return to every time you design a schema, pick an isolation level, or argue about whether your system really needs distributed transactions.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-002",
+    "title": "Understanding Distributed Systems",
+    "attributes": {"author": "Roberto Vitillo", "topic": "distributed-systems", "year": 2021, "level": "intermediate"},
+    "description": "A practical, compact introduction to the core ideas behind large-scale systems: communication, coordination, scalability, resiliency, and operations. Written for backend engineers who want the essentials of distributed systems without wading through academic papers. Covers failure detection, replication, partitioning, load balancing, caching, and the patterns behind resilient services such as circuit breakers, retries with backoff, and rate limiting.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-003",
+    "title": "Designing Distributed Systems",
+    "attributes": {"author": "Brendan Burns", "topic": "distributed-systems", "year": 2018, "level": "intermediate"},
+    "description": "Patterns and paradigms for scalable, reliable services, from one of the co-founders of Kubernetes. Introduces reusable container-based patterns — sidecars, ambassadors, adapters — then builds up to replicated serving patterns, sharded services, scatter/gather, and event-driven batch processing. A pattern-language approach to distributed design that maps naturally onto Kubernetes primitives.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-004",
+    "title": "Streaming Systems",
+    "attributes": {"author": "Tyler Akidau, Slava Chernyak, Reuven Lax", "topic": "distributed-systems", "year": 2018, "level": "advanced"},
+    "description": "The what, where, when, and how of large-scale data processing. Explains event time versus processing time, windowing, watermarks, triggers, and accumulation — the conceptual framework behind Apache Beam, Flink, and modern stream processing. Dense but rewarding: the definitive treatment of why exactly-once stream processing is hard and how the industry converged on its current answers.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-005",
+    "title": "Kafka: The Definitive Guide",
+    "attributes": {"author": "Gwen Shapira, Todd Palino, Rajini Sivaram, Krit Petty", "topic": "distributed-systems", "year": 2021, "level": "intermediate"},
+    "description": "Everything about running Apache Kafka in production: producers, consumers, consumer groups and rebalancing, exactly-once semantics, replication internals, cluster operations, monitoring, and stream processing with Kafka Streams. The second edition covers KRaft and the post-ZooKeeper world. Useful both as a first introduction to event streaming and as an operational reference.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-006",
+    "title": "Database Internals",
+    "attributes": {"author": "Alex Petrov", "topic": "databases", "year": 2019, "level": "advanced"},
+    "description": "A deep dive into how databases actually work, in two halves. The first covers storage engines: B-tree anatomy and variants, log-structured merge trees, file formats, and the trade-offs between read, write, and space amplification. The second covers distribution: failure detection, leader election, replication, consistency models, anti-entropy, and consensus with Paxos and Raft. The natural next step after Designing Data-Intensive Applications for readers who want to go one level deeper into the machinery.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-007",
+    "title": "SQL Performance Explained",
+    "attributes": {"author": "Markus Winand", "topic": "databases", "year": 2012, "level": "intermediate"},
+    "description": "Everything developers need to know about SQL performance, organized around the one thing that matters most: indexes. Explains B-tree indexes from the ground up, then works through WHERE clause pitfalls, joins, sorting, and pagination across Oracle, PostgreSQL, MySQL, and SQL Server. Short, focused, and worth its weight in avoided full-table scans.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-008",
+    "title": "SQL Antipatterns",
+    "attributes": {"author": "Bill Karwin", "topic": "databases", "year": 2010, "level": "intermediate"},
+    "description": "A catalog of the most common database design mistakes — entity-attribute-value tables, polymorphic associations, fear of NULLs, keyless entry — each with the misguided reasoning that leads there, how to recognize it, and legitimate solutions. Reads like a bestiary of every schema you have inherited and regretted.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-009",
+    "title": "High Performance MySQL",
+    "attributes": {"author": "Baron Schwartz, Peter Zaitsev, Vadim Tkachenko", "topic": "databases", "year": 2012, "level": "advanced"},
+    "description": null,
+    "available_units": 1
+  },
+  {
+    "id": "bk-010",
+    "title": "Fluent Python",
+    "attributes": {"author": "Luciano Ramalho", "topic": "python", "year": 2022, "level": "advanced"},
+    "description": "Python's simplicity lets you become productive quickly, but often this means you aren't using everything the language has to offer. This book teaches you how to write effective, modern Python 3 by leveraging its best — and possibly most neglected — features. The second edition covers special methods and the data model, sequences, dictionaries and sets, functions as objects, type hints in practice, dataclasses, object references and mutability, protocols and ABCs, inheritance, decorators and closures, concurrency with futures and asyncio, iterators and generators, context managers, coroutines, descriptors, and metaprogramming. The canonical book for going from writing Python to thinking in Python.",
+    "available_units": 0
+  },
+  {
+    "id": "bk-011",
+    "title": "Seven Databases in Seven Weeks",
+    "attributes": {"author": "Luc Perkins, Eric Redmond, Jim Wilson", "topic": "databases", "year": 2018, "level": "intermediate"},
+    "available_units": 2
+  },
+  {
+    "id": "bk-012",
+    "title": "Redis in Action",
+    "attributes": {"author": "Josiah Carlson", "topic": "databases", "year": "c2013", "level": "intermediate"},
+    "description": "Redis beyond GET and SET: building real systems from its data structures. Works through caching, session stores, leaderboards, autocomplete, distributed locks, task queues, and search, with honest discussion of memory usage and persistence trade-offs. Some APIs have aged, but the design patterns remain the standard playbook for in-memory data.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-013",
+    "title": "The Pragmatic Programmer",
+    "attributes": {"author": "Andrew Hunt, David Thomas", "topic": "software-design", "year": 1999, "level": "intermediate"},
+    "description": "The classic guide to the craft of software development, structured as a series of short, memorable tips: DRY, orthogonality, tracer bullets, rubber duck debugging, broken windows, programming by coincidence. Less about any particular technology and more about the habits and judgment that separate journeyman programmers from masters. One of the few programming books from the late nineties that engineers still hand to new team members.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-014",
+    "title": "Clean Code",
+    "attributes": {"author": "Robert C. Martin", "topic": "software-design", "year": 2008, "level": "intermediate"},
+    "description": "A handbook of software craftsmanship: meaningful names, small functions, comments as failures to express intent in code, formatting, error handling, boundaries, unit tests, and successive refinement. Polarizing in places — some rules read as dogma today — but still the most common vocabulary teams share for talking about code quality, and full of before-and-after refactorings that teach by example.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-015",
+    "title": "Refactoring",
+    "attributes": {"author": "Martin Fowler", "topic": "software-design", "year": 2018, "level": "intermediate"},
+    "description": "Improving the design of existing code, one safe behavior-preserving step at a time. The second edition rewrites the catalog in JavaScript: extract function, inline variable, move field, replace conditional with polymorphism, and dozens more, each with motivation, mechanics, and a worked example. The opening chapter — a single long refactoring narrated move by move — remains the best demonstration of the discipline ever written.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-016",
+    "title": "Effective Python",
+    "attributes": {"author": "Brett Slatkin", "topic": "python", "year": 2019, "level": "intermediate"},
+    "description": "90 specific ways to write better Python, in the tradition of Effective C++: item-sized advice on Pythonic thinking, lists and dictionaries, functions, comprehensions, classes, concurrency, robustness, and collaboration. Each item is a few pages with runnable examples and a crisp 'things to remember' summary. Ideal for engineers who already write Python daily and want to sharpen their instincts.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-017",
+    "title": "Python Cookbook",
+    "attributes": {"author": "David Beazley, Brian K. Jones", "topic": "python", "year": 2013, "level": "intermediate"},
+    "description": "Recipes for mastering Python 3: data structures, strings, iterators and generators, functions, classes, metaprogramming, concurrency, and C extensions. Beazley's recipes are miniature masterclasses — the generator and metaprogramming chapters in particular reward careful study long after you stop needing the individual recipes.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-018",
+    "title": "Automate the Boring Stuff with Python",
+    "attributes": {"author": "Al Sweigart", "topic": "python", "year": 2019, "level": "beginner"},
+    "description": "Practical programming for total beginners: read and write files, scrape the web, manipulate spreadsheets and PDFs, send email, schedule tasks, and control the mouse and keyboard. The book that has onboarded more non-programmers into Python than perhaps any other, because every chapter automates something the reader actually finds tedious.",
+    "available_units": 5
+  },
+  {
+    "id": "bk-019",
+    "title": "Architecture Patterns with Python",
+    "attributes": {"author": "Harry Percival, Bob Gregory", "topic": "python", "year": 2020, "level": "intermediate"},
+    "description": "Test-driven development, domain-driven design, and event-driven microservices, made concrete in Python. Builds a real application through repository and unit-of-work patterns, service layers, aggregates, events, message buses, and CQRS, discussing at each step whether the added indirection pays for itself. The rare architecture book with a full working codebase and honest 'when not to use this' sections.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-020",
+    "title": "Structure and Interpretation of Computer Programs",
+    "attributes": {"author": "Harold Abelson, Gerald Jay Sussman", "topic": "software-design", "year": 1996, "level": "advanced"},
+    "description": "The legendary Wizard Book: MIT's introduction to computer science, and still one of the most intellectually rewarding books a programmer can work through. Using Scheme — a language small enough to learn in an afternoon and deep enough to spend a career with — it builds the central ideas of computation from first principles, and it does so with a clarity and ambition that no successor has matched.\n\nChapter one begins with the elements of programming: primitive expressions, means of combination, and means of abstraction. Within thirty pages the reader is writing higher-order procedures — functions that take functions and return functions — and using them to express general methods like fixed-point search and Newton's method. The message is delivered early and often: programs are built by defining abstractions and composing them, and the power of a language is measured by the abstractions it lets you express.\n\nChapter two turns to compound data: pairs, sequences, symbolic expressions, and the discipline of data abstraction — separating how data is used from how it is represented. The famous picture-language section shows how a handful of combinators can generate endlessly intricate designs, a lesson in closure properties and compositionality disguised as a graphics exercise. The chapter closes with multiple representations for abstract data and a first look at data-directed programming and message passing — the ideas beneath what mainstream languages call polymorphism.\n\nChapter three confronts state. Objects with local state, environments, and the substitution model's breakdown lead to a serious discussion of assignment's costs: once time enters the picture, reasoning about programs becomes genuinely harder. Streams — infinite, lazily evaluated sequences — are offered as an alternative way to model time, and the tension between the object view and the stream view of the world is left, honestly, unresolved.\n\nChapter four is the book's beating heart: the metacircular evaluator. In a few pages of Scheme, the reader builds a working interpreter for Scheme itself — eval and apply chasing each other in a loop — and suddenly the distinction between program and data dissolves. Variations follow: lazy evaluation, nondeterministic computing with automatic backtracking, and a logic programming language, each built as a modification of the evaluator, each showing that language design is a thing ordinary programmers can do. Chapter five grounds it all in a register machine, building an explicit-control evaluator and finally a compiler, closing the loop from the highest abstraction down to something resembling hardware.\n\nNobody pretends SICP is an easy read. The exercises range from finger warm-ups to small research projects, and readers without mathematical inclination will find some examples demanding. But engineers who complete even the first three chapters consistently report the same thing: it permanently changed how they think about programs — not as instructions to a machine, but as a medium for expressing ideas about process. Available free online in its entirety, yet the physical copy keeps disappearing from our shelves, which tells you something.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-021",
+    "title": "High Performance Python",
+    "attributes": {"author": "Micha Gorelick, Ian Ozsvald", "topic": "python", "year": 2020, "level": "advanced"},
+    "description": "Practical performant programming for humans: profiling first, then lists versus tuples versus dicts, iterators, matrix computation with NumPy, compiling to C with Cython and Numba, concurrency with asyncio, multiprocessing, and clusters. Grounded in war stories from production, with a refreshing insistence on measuring before optimizing.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-022",
+    "title": "Robust Python",
+    "attributes": {"author": "Patrick Viafore", "topic": "python", "year": 2021, "level": "intermediate"},
+    "description": "Writing Python that survives its second and third maintainers: type annotations as communication, enums and dataclasses for domain modeling, runtime validation, extensibility patterns, and testing strategy. Aimed at teams whose 'quick script' became load-bearing infrastructure.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-023",
+    "title": "A Philosophy of Software Design",
+    "attributes": {"author": "John Ousterhout", "topic": "software-design", "year": 2018, "level": "intermediate"},
+    "description": "A short book with one big idea: complexity is the enemy, and the primary job of design is managing it. Deep modules with simple interfaces, information hiding, pulling complexity downward, designing errors out of existence, and comments as part of design rather than decoration. Deliberately opinionated and occasionally at odds with Clean Code orthodoxy — reading both and deciding where you stand is a rite of passage.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-024",
+    "title": "Design Patterns: Elements of Reusable Object-Oriented Software",
+    "attributes": {"author": "Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides", "topic": "software-design", "year": 1994, "level": "advanced"},
+    "description": "The Gang of Four book: 23 classic patterns — Factory, Singleton, Adapter, Decorator, Observer, Strategy, Visitor, and the rest — each with intent, structure, consequences, and C++/Smalltalk examples. Modern languages have absorbed or obsoleted some patterns, but the vocabulary remains universal, and the introductory chapters on composition over inheritance and programming to interfaces are as current as ever.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-025",
+    "title": "Working Effectively with Legacy Code",
+    "attributes": {"author": "Michael Feathers", "topic": "software-design", "year": 2004, "level": "advanced"},
+    "description": "Legacy code is code without tests — and this is the field manual for changing it safely. Seam identification, sprout methods, wrap classes, characterization tests, and a long catalog of dependency-breaking techniques for getting untestable code under test without rewriting it. The most practically useful book ever written about the code you actually inherit.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-026",
+    "title": "The Mythical Man-Month",
+    "attributes": {"author": "Frederick P. Brooks Jr.", "topic": "software-design", "year": 1975, "level": "intermediate"},
+    "description": "Essays on software engineering from the manager of OS/360, coining laws the industry re-learns every decade: adding people to a late project makes it later; there is no silver bullet; plan to throw one away. Half a century old and still the most quoted book in software project management, because the hard problems it names are human, not technical."
+  },
+  {
+    "id": "bk-027",
+    "title": "Code Complete",
+    "attributes": {"author": "Steve McConnell", "topic": "software-design", "year": 2004, "level": "intermediate"},
+    "description": "An encyclopedic survey of software construction: variable naming, routine design, defensive programming, pseudocode programming process, code tuning, and integration, backed by an unusual density of citations to empirical studies. Big, thorough, and occasionally dated in its examples, but unmatched as a systematic treatment of the craft's fundamentals.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-028",
+    "title": "Domain-Driven Design: Tackling Complexity in the Heart of Software",
+    "attributes": {"author": "Eric Evans", "topic": "architecture", "year": 2003, "level": "advanced"},
+    "description": "The book that gave the industry a language for connecting software design to business domains. Its central argument: the heart of software is its domain model, and the model must live in the code, not in documents. Part one establishes the ubiquitous language — a shared, rigorous vocabulary between developers and domain experts, used in conversation, diagrams, and class names alike. Part two catalogs the building blocks: entities, value objects, aggregates, repositories, factories, services, and domain events, with careful attention to lifecycle and boundaries. Part three, the deepest material, covers refactoring toward deeper insight: breakthrough moments when a hidden concept surfaces and the model reorganizes around it. Part four addresses strategic design — bounded contexts, context maps, anticorruption layers, and the political reality that large systems host multiple models that must be integrated deliberately or corrupt one another accidentally. Famously dense — the running shipping-logistics example demands patience — and most readers pair it with a gentler companion. But bounded contexts and ubiquitous language have become foundational vocabulary for microservice boundaries and team topologies, making the original text more relevant twenty years on, not less.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-029",
+    "title": "Implementing Domain-Driven Design",
+    "attributes": {"author": "Vaughn Vernon", "topic": "architecture", "year": 2013, "level": "advanced"},
+    "description": "The practitioner's companion to Evans: bounded contexts, aggregates, domain events, and hexagonal architecture worked through in running code with a realistic SaaS example. Known for the aggregate design rules — reference other aggregates by identity, keep aggregates small, use eventual consistency between them — that most teams actually apply day to day.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-030",
+    "title": "Grokking Algorithms",
+    "attributes": {"author": "Aditya Y. Bhargava", "topic": "algorithms", "year": 2016, "level": "beginner"},
+    "description": "An illustrated, friendly guide to algorithms: binary search, big O, sorting, recursion, hash tables, breadth-first search, Dijkstra, greedy algorithms, and dynamic programming, each explained with hand-drawn diagrams and Python examples. The gentlest on-ramp in print for developers who skipped a CS degree.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-031",
+    "title": "Introduction to Algorithms",
+    "attributes": {"author": "Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein", "topic": "algorithms", "year": 2009, "level": "advanced"},
+    "description": "CLRS: the standard university algorithms text. Sorting, data structures, divide and conquer, dynamic programming, greedy algorithms, graph algorithms, NP-completeness — rigorous pseudocode, proofs, and exercises across more than a thousand pages. Nobody reads it cover to cover; everybody needs it on the shelf.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-032",
+    "title": "The Algorithm Design Manual",
+    "attributes": {"author": "Steven S. Skiena", "topic": "algorithms", "year": 2008, "level": "advanced"},
+    "description": "The working engineer's algorithms book: half techniques, half a catalog of 75 algorithmic problems with practical guidance on recognizing and solving each. The war stories — real consulting problems solved by reframing them as known algorithmic questions — teach the meta-skill CLRS assumes: seeing which problem you actually have.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-033",
+    "title": "The Art of Computer Programming, Volume 1: Fundamental Algorithms",
+    "attributes": {"author": "Donald E. Knuth", "topic": "algorithms", "year": 1997, "level": "advanced"},
+    "description": "The first volume of the most famous unfinished project in computer science, and one of the few books in our catalog that is simultaneously a working reference, a historical monument, and a personality test. Bill Gates once remarked that anyone who finished it should send him a résumé; the number of engineers who have honestly read every page is small, and Knuth would be the first to say that is fine — it is a book to be studied, sampled, and returned to across a career.\n\nVolume 1 opens with the mathematical preliminaries that everything else stands on: induction, sums and products, elementary number theory, permutations and factorials, binomial coefficients, harmonic numbers, generating functions, and asymptotic notation, developed with full rigor and Knuth's trademark blend of precision and dry wit. This is where generations of computer scientists actually learned to analyze an algorithm — not to wave at big O, but to derive the constant factors, the variances, the exact expected behavior. The exercises are graded from 00 (immediate) to 50 (unsolved research problem), a rating system that has launched a thousand humbling afternoons; famously, some exercises originally rated as research problems were later solved and re-rated, and at least one reader earned a PhD by taking a rating of 46 personally.\n\nThe second half of the volume covers information structures: linear lists, stacks, queues, and deques; sequential versus linked allocation; circular and doubly linked lists; arrays and orthogonal lists; and trees in every variation — traversal, threaded trees, binary tree representations of forests — culminating in dynamic storage allocation and the buddy system, garbage collection, and the analysis that underlies every memory allocator you have ever used. All algorithms are presented in MIX, Knuth's idealized 1960s machine language, which readers either find charming or maddening (the MMIX successor modernizes it, and translations exist). Working through the MIX programs is optional; the prose analysis is not, and it is uniformly superb.\n\nWhy hand a modern engineer a book whose examples run on an imaginary sixties mainframe? Because no other text teaches the discipline of knowing — rather than guessing — what a program costs. The linked-list and tree material remains directly applicable, the mathematical toolkit is timeless, and the standard of care Knuth models (he still pays a hexadecimal dollar bounty for every error found) is itself the lesson. Keep it next to CLRS: one tells you which algorithm to use, the other teaches you what it truly costs.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-034",
+    "title": "Cracking the Coding Interview",
+    "attributes": {"author": "Gayle Laakmann McDowell", "topic": "algorithms", "year": 2015, "level": "intermediate"},
+    "description": "189 programming questions and solutions, plus the process behind big-tech interviews: how to decompose problems aloud, optimize brute-force answers, and handle behavioral rounds. Whatever one thinks of the interview style it trains for, it remains the standard preparation text, and the data-structure refreshers are genuinely well done.",
+    "available_units": 5
+  },
+  {
+    "id": "bk-035",
+    "title": "Site Reliability Engineering",
+    "attributes": {"author": "Betsy Beyer, Chris Jones, Jennifer Petoff, Niall Richard Murphy", "topic": "devops", "year": "2016", "level": "intermediate"},
+    "description": "How Google runs production systems: the book that defined SRE as a discipline. Error budgets, SLOs, toil elimination, release engineering, monitoring and alerting philosophy, incident management, postmortem culture, and the organizational contract that lets development and operations share risk honestly. Some chapters are Google-scale specific, but the core ideas — especially SLOs and error budgets — have become the industry's shared language for reliability. Available free online, yet the paper copy still circulates constantly here.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-036",
+    "title": "The Site Reliability Workbook",
+    "attributes": {"author": "Betsy Beyer, Niall Richard Murphy, David K. Rensin, Kent Kawahara, Stephen Thorne", "topic": "devops", "year": 2018, "level": "intermediate"},
+    "description": "The practical companion to the SRE book: worked SLO examples, alerting on SLOs, eliminating toil, simplicity, and case studies from Evernote, Home Depot, and Spotify on adapting SRE outside Google. Where the first book says why, this one shows how, spreadsheets included.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-037",
+    "title": "The Phoenix Project",
+    "attributes": {"author": "Gene Kim, Kevin Behr, George Spafford", "topic": "devops", "year": 2013, "level": "beginner"},
+    "description": "A novel about IT, DevOps, and helping your business win: Bill Palmer inherits a doomed project and a dysfunctional IT organization, and discovers the Three Ways — flow, feedback, and continual learning — with the help of a socratic board member. Reads in a weekend and has converted more executives to DevOps thinking than any technical argument ever has.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-038",
+    "title": "The DevOps Handbook",
+    "attributes": {"author": "Gene Kim, Jez Humble, Patrick Debois, John Willis", "topic": "devops", "year": 2016, "level": "intermediate"},
+    "description": "The non-fiction sequel to The Phoenix Project: how to implement the Three Ways in practice. Value stream mapping, deployment pipelines, telemetry, hypothesis-driven development, security integration, and dozens of case studies from organizations that transformed their delivery performance.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-039",
+    "title": "Accelerate",
+    "attributes": {"author": "Nicole Forsgren, Jez Humble, Gene Kim", "topic": "devops", "year": 2018, "level": "intermediate"},
+    "description": "The science behind DevOps: four years of survey research showing which capabilities actually predict software delivery performance, and that the four key metrics — deployment frequency, lead time, change failure rate, time to restore — correlate with organizational performance. The book to hand to leadership when they ask for evidence.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-040",
+    "title": "Kubernetes: Up and Running",
+    "attributes": {"author": "Brendan Burns, Joe Beda, Kelsey Hightower", "topic": "devops", "year": 2019, "level": "intermediate"},
+    "description": "<p>Dive into the future of infrastructure with the creators of Kubernetes.</p><p>This book shows how Kubernetes &amp; distributed systems can help you achieve <b>velocity, scaling, abstraction &amp; efficiency</b>. Covers pods, labels &amp; annotations, service discovery, ReplicaSets, DaemonSets, Jobs, ConfigMaps &amp; secrets, deployments, and integrating storage into containerized applications. Practical, example-driven, and maintained across editions as the ecosystem evolves.</p>",
+    "available_units": 2
+  },
+  {
+    "id": "bk-041",
+    "title": "Terraform: Up & Running",
+    "attributes": {"author": "Yevgeniy Brikman", "topic": "devops", "year": 2019, "level": "intermediate"},
+    "description": "Infrastructure as code from first principles to production: Terraform syntax, state management and its sharp edges, modules, workspaces, testing infrastructure code, and team workflows. Honest about the tool's gotchas in a way official documentation never is.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-042",
+    "title": "Continuous Delivery",
+    "attributes": {"author": "Jez Humble, David Farley", "topic": "devops", "year": 2010, "level": "intermediate"},
+    "description": "The foundational text on deployment pipelines: configuration management, continuous integration, automated acceptance testing, deployment strategies, and the principle that software should always be releasable. Predates most modern CI/CD tooling yet defined the concepts all of it implements.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-043",
+    "title": "Release It!",
+    "attributes": {"author": "Michael T. Nygard", "topic": "devops", "year": 2018, "level": "intermediate"},
+    "description": "Design and deploy production-ready software: stability antipatterns (integration points, cascading failures, slow responses, dogpiles) and the patterns that counter them — timeouts, circuit breakers, bulkheads, steady state, fail fast. The second edition adds chaos engineering and deployment. Every war story in it will remind you of an outage you have lived through, and the vocabulary it introduced is now how the industry talks about resilience.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-044",
+    "title": "Observability Engineering",
+    "attributes": {"author": "Charity Majors, Liz Fong-Jones, George Miranda", "topic": "devops", "year": 2022, "level": "intermediate"},
+    "description": "Achieving production excellence through structured events, high-cardinality data, and exploratory debugging — and why dashboards of pre-aggregated metrics cannot answer questions you did not predict. Covers instrumentation, sampling, SLO-based alerting, and the cultural shift from monitoring known failure modes to interrogating unknown ones.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-045",
+    "title": "Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow",
+    "attributes": {"author": "Aurélien Géron", "topic": "machine-learning", "year": 2022, "level": "intermediate"},
+    "description": "The most popular practical ML book: end-to-end projects through the classical toolkit — regression, classification, trees, ensembles, dimensionality reduction — then deep learning with Keras: CNNs, RNNs, attention and transformers, autoencoders, GANs, and reinforcement learning basics. Third edition. Exercises with solutions, production concerns included; the default recommendation for engineers entering ML.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-046",
+    "title": "Deep Learning",
+    "attributes": {"author": "Ian Goodfellow, Yoshua Bengio, Aaron Courville", "topic": "machine-learning", "year": 2016, "level": "advanced"},
+    "description": "The standard theoretical reference: applied math foundations, feedforward networks, regularization, optimization, CNNs, sequence models, and research topics from representation learning to generative models. Predates transformers, but the foundations it teaches are what made understanding transformers possible.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-047",
+    "title": "Designing Machine Learning Systems",
+    "attributes": {"author": "Chip Huyen", "topic": "machine-learning", "year": 2022, "level": "intermediate"},
+    "description": "ML engineering as systems engineering: framing problems, training data and sampling, feature engineering, model selection, offline and online evaluation, deployment patterns, prediction and continual learning pipelines, monitoring for distribution shift, and the infrastructure and human sides of ML platforms. The book that filled the gap between Kaggle and production.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-048",
+    "title": "The Hundred-Page Machine Learning Book",
+    "attributes": {"author": "Andriy Burkov", "topic": "machine-learning", "year": 2019, "level": "beginner"},
+    "description": "All of machine learning that fits in a hundred pages (and change): supervised and unsupervised learning, the main algorithm families, feature engineering, evaluation, and neural network basics, compressed with unusual skill. The right first book for engineers who want the map before the territory.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-049",
+    "title": "Pattern Recognition and Machine Learning",
+    "attributes": {"author": "Christopher M. Bishop", "topic": "machine-learning", "year": 2006, "level": "advanced"},
+    "description": "The Bayesian classic: probability distributions, linear models, kernel methods, graphical models, mixture models and EM, approximate inference, and sampling methods, with full mathematical development. Demanding, beautiful, and still the reference for probabilistic foundations.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-050",
+    "title": "AI Engineering",
+    "attributes": {"author": "Chip Huyen", "topic": "machine-learning", "year": 2025, "level": "intermediate"},
+    "description": "Building applications on foundation models: evaluation methodology for open-ended systems, prompt engineering, RAG and agent architectures, finetuning decisions, dataset engineering, inference optimization, and product architecture with user feedback loops. The emerging standard text for the LLM application layer — directly relevant to anyone building agents or retrieval systems.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-051",
+    "title": "The Rust Programming Language",
+    "attributes": {"author": "Steve Klabnik, Carol Nichols", "topic": "rust", "year": 2019, "level": "beginner"},
+    "description": "'The Book': the official, canonical introduction to Rust. Ownership, borrowing, and lifetimes explained patiently; structs, enums, and pattern matching; traits and generics; error handling; smart pointers; fearless concurrency; and closing projects including a multithreaded web server. The standard against which language onboarding documentation is now measured.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-052",
+    "title": "Programming Rust",
+    "attributes": {"author": "Jim Blandy, Jason Orendorff, Leonora F. S. Tindall", "topic": "rust", "year": 2021, "level": "intermediate"},
+    "description": "Fast, safe systems development — the deeper second Rust book. Precise mental models for ownership and unsafe code, plus thorough treatments of traits, operator overloading, iterators, collections, concurrency, and asynchronous programming. Where The Book teaches you Rust, this one explains why Rust is the way it is.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-053",
+    "title": "The Go Programming Language",
+    "attributes": {"author": "Alan A. A. Donovan, Brian W. Kernighan", "topic": "go", "year": 2015, "level": "intermediate"},
+    "description": "The definitive Go text, in the K&R tradition: program structure, basic and composite types, functions, methods, interfaces, goroutines and channels, shared-variable concurrency, packages, testing, and reflection. Spare, precise prose with exemplary programs — a decade old and still the best single book on the language.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-054",
+    "title": "Eloquent JavaScript",
+    "attributes": {"author": "Marijn Haverbeke", "topic": "javascript", "year": 2018, "level": "beginner"},
+    "description": "A modern introduction to programming using JavaScript.<br><br>Values, functions &amp; data structures; higher-order functions; objects; bugs and errors; regular expressions; modules; asynchronous programming; and the browser: the DOM, events, and drawing on canvas. Includes five substantial projects &#8212; a robot, a programming language, a platform game, a paint program, and a dynamic website. Known for elegant exercises and prose that treats programming as &quot;a craft worth doing well&quot;. Freely readable online.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-055",
+    "title": "JavaScript: The Good Parts",
+    "attributes": {"author": "Douglas Crockford", "topic": "javascript", "year": 2008, "level": "intermediate"},
+    "description": "",
+    "available_units": 2
+  },
+  {
+    "id": "bk-056",
+    "title": "Clean Architecture",
+    "attributes": {"author": "Robert C. Martin", "topic": "architecture", "year": 2017, "level": "intermediate"},
+    "description": "A craftsman's guide to software structure: the SOLID principles, component cohesion and coupling, boundaries, and the concentric dependency rule — source dependencies point inward, toward policy, away from frameworks, UI, and databases. Opinionated and abstract by design; best read as a set of forces to weigh rather than a blueprint to copy.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-057",
+    "title": "Fundamentals of Software Architecture",
+    "attributes": {"author": "Mark Richards, Neal Ford", "topic": "architecture", "year": 2020, "level": "intermediate"},
+    "description": "An engineering approach to architecture: quantifying and governing characteristics like scalability and deployability with fitness functions, a tour of styles from layered monoliths through microkernels to event-driven systems and microservices, and the soft skills — decision records, trade-off analysis, negotiation — that the role actually demands. The first serious attempt to teach architecture as a discipline rather than folklore.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-058",
+    "title": "Software Architecture: The Hard Parts",
+    "attributes": {"author": "Neal Ford, Mark Richards, Pramod Sadalage, Zhamak Dehghani", "topic": "architecture", "year": 2021, "level": "advanced"},
+    "description": "Modern trade-off analyses for distributed architectures, built around one honest premise: there are no best practices, only trade-offs. When to break apart a monolith and when not to, service granularity, breaking apart shared data, distributed transactions and sagas, and contracts between services, all narrated through a running case study with architecture decision records.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-059",
+    "title": "Building Microservices",
+    "attributes": {"author": "Sam Newman", "topic": "architecture", "year": 2021, "level": "intermediate"},
+    "description": "The standard microservices text, heavily revised in its second edition: modeling services around domains, communication styles, workflow and sagas, deployment and testing strategies for distributed systems, security, resilience, and the organizational structures that make or break the whole endeavor. Notably candid that most teams should start with a monolith.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-060",
+    "title": "Learning Go",
+    "attributes": {"author": "Jon Bodner", "topic": "go", "year": 2021, "level": "beginner"},
+    "description": "An idiomatic approach to real-world Go programming: the language from scratch with modern tooling — modules, generics in the second edition, testing, and the standard library — with constant attention to what idiomatic Go actually looks like and why. The best current on-ramp for developers arriving from Python or Java.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-061",
+    "title": "Effective Java",
+    "attributes": {"author": "Joshua Bloch", "topic": "java", "year": 2018, "level": "intermediate"},
+    "description": "90 items of best practice from the designer of the Java collections framework: creating and destroying objects, equals and hashCode contracts, generics, enums, lambdas and streams, concurrency, and serialization's dangers. The third edition covers Java 9. Widely considered the single most valuable book a Java developer can own, and much of its advice transcends the language.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-062",
+    "title": "The C Programming Language",
+    "attributes": {"author": "Brian W. Kernighan, Dennis M. Ritchie", "topic": "c", "year": 1988, "level": "intermediate"},
+    "description": "K&R: the language defined by its creators in barely 270 pages. Types, operators, control flow, functions, pointers and arrays, structures, and the UNIX system interface, with exercises that generations of programmers cut their teeth on. A model of technical writing — no book says more with less.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-063",
+    "title": "Monolith to Microservices",
+    "attributes": {"author": "Sam Newman", "topic": "architecture", "year": 2019, "level": "intermediate"},
+    "description": null,
+    "available_units": 2
+  },
+  {
+    "id": "bk-064",
+    "title": "System Design Interview: An Insider's Guide",
+    "attributes": {"author": "Alex Xu", "topic": "architecture", "year": 2020, "level": "intermediate"},
+    "description": "A framework for the system design interview plus worked designs: rate limiter, consistent hashing, key-value store, unique ID generator, URL shortener, web crawler, notification system, news feed, chat system, autocomplete, YouTube, and Google Drive. Interview-oriented by framing, but the diagrams and back-of-envelope estimation habits are useful well beyond interviews.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-065",
+    "title": "The Web Application Hacker's Handbook",
+    "attributes": {"author": "Dafydd Stuttard, Marcus Pinto", "topic": "security", "year": 2011, "level": "advanced"},
+    "description": "Finding and exploiting security flaws in web applications: mapping attack surface, bypassing client-side controls, attacking authentication, session management, access controls, injection in all its forms, XSS, CSRF, and logic flaws. Written by the creator of Burp Suite. Some framework specifics have aged; the attacker's methodology has not, and reading it changes how you review your own code.",
+    "available_units": -1
+  },
+  {
+    "id": "bk-066",
+    "title": "The Tangled Web",
+    "attributes": {"author": "Michal Zalewski", "topic": "security", "year": 2011, "level": "intermediate"},
+    "description": "A guide to securing modern web applications by way of a merciless tour of how browsers actually work: URL parsing, HTTP quirks, HTML parsing ambiguities, the same-origin policy and its exceptions, and the security cheat sheets that made the book famous. Bleak, funny, and essential for understanding why web security is hard.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-067",
+    "title": "Computer Networking: A Top-Down Approach",
+    "attributes": {"author": "James F. Kurose, Keith W. Ross", "topic": "networking", "year": 2016, "level": "beginner"},
+    "description": "The standard networking textbook, taught top-down: starting from the application layer — HTTP, DNS, email — then descending through transport (TCP congestion control treated carefully), network, link, and physical layers, plus wireless and security chapters. The approach mirrors how application engineers actually encounter the stack.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-068",
+    "title": "TCP/IP Illustrated, Volume 1: The Protocols",
+    "attributes": {"author": "W. Richard Stevens", "topic": "networking", "year": 1993, "level": "advanced"},
+    "available_units": 1
+  },
+  {
+    "id": "bk-069",
+    "title": "Operating Systems: Three Easy Pieces",
+    "attributes": {"author": "Remzi H. Arpaci-Dusseau, Andrea C. Arpaci-Dusseau", "topic": "operating-systems", "level": "intermediate"},
+    "description": "Virtualization, concurrency, and persistence: the three pillars of operating systems, taught with rare clarity and humor. CPU scheduling, virtual memory in full detail, locks and condition variables, file systems from FFS to LFS to journaling, and distributed systems basics. Free online, beloved by students, and the best answer to 'I never really learned how the OS works'.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-070",
+    "title": "Computer Systems: A Programmer's Perspective",
+    "attributes": {"author": "Randal E. Bryant, David R. O'Hallaron", "topic": "operating-systems", "year": 2015, "level": "advanced"},
+    "description": "What every programmer should know about the machine: data representation, x86-64 assembly from a compiler's viewpoint, processor architecture, cache-aware optimization, linking (the famous chapter), exceptional control flow, virtual memory, system-level I/O, and concurrent programming. CMU's legendary systems course in book form; the bridge between writing code and understanding what it costs.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-071",
+    "title": "The Linux Command Line",
+    "attributes": {"author": "William Shotts", "topic": "linux", "year": 2019, "level": "beginner"},
+    "description": "From first keystrokes to writing full shell scripts: navigation, redirection, pipelines, permissions, processes, environment, package management, storage, networking basics, text processing with grep, sed and awk, and finally bash scripting done properly. Patient, complete, and free online — the book to hand anyone who wants to stop fearing the terminal.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-072",
+    "title": "UNIX and Linux System Administration Handbook",
+    "attributes": {"author": "Evi Nemeth, Garth Snyder, Trent R. Hein, Ben Whaley, Dan Mackin", "topic": "linux", "year": 2017, "level": "intermediate"},
+    "description": "The bible of system administration, fifth edition: booting, access control, processes, filesystems, user management, networking, DNS, single sign-on, security, monitoring, performance, virtualization, containers, CI/CD, and cloud, with the dry humor that made every previous edition beloved. Encyclopedic yet opinionated about what actually matters in production.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-073",
+    "title": "Algorithms",
+    "attributes": {"author": "Robert Sedgewick, Kevin Wayne", "topic": "algorithms", "year": 2011, "level": "intermediate"},
+    "description": "The undergraduate classic, fourth edition: unions and finds, sorting, searching with balanced trees and hash tables, graphs, and strings, all implemented in clean Java with careful empirical analysis alongside the theory. Paired with the famous Coursera courses and booksite. More approachable than CLRS while remaining rigorous.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-074",
+    "title": "Staff Engineer: Leadership Beyond the Management Track",
+    "attributes": {"author": "Will Larson", "topic": "career", "year": 2021, "level": "intermediate"},
+    "description": "What it means to operate at staff-plus level: the four archetypes — tech lead, architect, solver, right hand — getting the title and doing the job, writing engineering strategy, managing technical quality, and staying aligned with authority, followed by candid interviews with staff engineers across the industry. The book that finally documented the senior IC path.",
+    "available_units": 0
+  },
+  {
+    "id": "bk-075",
+    "title": "The Manager's Path",
+    "attributes": {"author": "Camille Fournier", "topic": "career", "year": 2017, "level": "intermediate"},
+    "description": "A guide for tech leaders navigating growth and change, stage by stage: being mentored, mentoring, tech lead, managing people, managing teams, managing managers, and senior leadership. Concrete, unsentimental advice at each rung — the default gift for every newly minted engineering manager, and just as useful for ICs who want to understand their org chart.",
+    "available_units": 3
+  },
+  {
+    "id": "bk-076",
+    "title": "The Software Engineer's Guidebook",
+    "attributes": {"author": "Gergely Orosz", "topic": "career", "year": 2023, "level": "intermediate"},
+    "description": "Navigating a career from junior to staff and beyond, from the author of The Pragmatic Engineer newsletter: performance reviews and promotions demystified, competent software engineering practices, working with teams, and role-by-role expectations across company types. The career manual the industry lacked, written by someone who has seen compensation and promotion from both sides.",
+    "available_units": 2
+  },
+  {
+    "id": "bk-077",
+    "title": "Peopleware: Productive Projects and Teams",
+    "attributes": {"author": "Tom DeMarco, Timothy Lister", "topic": "career", "year": 1987, "level": "intermediate"},
+    "description": "The sociology of software teams: why the major problems of our work are not so much technological as sociological. Office environments and flow, hiring and keeping the right people, jelled teams and teamicide, and the measurement dysfunctions that destroy morale. Nearly forty years old and still uncomfortably accurate about open-plan offices and overtime.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-078",
+    "title": "Clean Code",
+    "attributes": {"author": "Robert C. Martin", "topic": "software-design", "year": 2008, "level": "intermediate"},
+    "description": "A handbook of software craftsmanship: meaningful names, small functions, comments as failures to express intent in code, formatting, error handling, boundaries, unit tests, and successive refinement. Polarizing in places — some rules read as dogma today — but still the most common vocabulary teams share for talking about code quality, and full of before-and-after refactorings that teach by example.",
+    "available_units": 4
+  },
+  {
+    "id": "bk-079",
+    "title": "the pragmatic  programmer ",
+    "attributes": {"author": "Andrew  Hunt,  David Thomas", "topic": "software-design", "year": 1999, "level": "intermediate"},
+    "description": "Classic guide to pragmatic software development. Tips on DRY, orthogonality and career growth.",
+    "available_units": 1
+  },
+  {
+    "id": "bk-030",
+    "title": "Grokking Algorithms",
+    "attributes": {"author": "Aditya Y. Bhargava", "topic": "algorithms", "year": 2016, "level": "beginner"},
+    "description": "An illustrated, friendly guide to algorithms: binary search, big O, sorting, recursion, hash tables, breadth-first search, Dijkstra, greedy algorithms, and dynamic programming, each explained with hand-drawn diagrams and Python examples. The gentlest on-ramp in print for developers who skipped a CS degree.",
+    "available_units": 4
+  }
+]
