@@ -8,6 +8,8 @@ class Settings(BaseSettings):
 
     openai_api_key: str = ''
     embedding_model: str = 'text-embedding-3-small'
+    qdrant_url: str = 'http://localhost:6333'
+    qdrant_collection: str = 'books'
     sqlite_path: str = 'data/library.db'
     catalog_path: str = 'data/catalog.json'
     chunk_max_chars: int = 1500

@@ -7,7 +7,7 @@ from textwrap import wrap
 
 from librarian.config import settings
 from librarian.models import Book
-from librarian.storage import db
+from librarian.storage import db, embeddings, vector_store
 
 logger = logging.getLogger('ingest')
 
@@ -76,6 +76,13 @@ def run() -> None:
     with closing(db.connect(settings.sqlite_path)) as conn:
         db.upsert_books(conn, books)
     logger.info(f'upserted {len(books)} books into {settings.sqlite_path}')
+
+    chunks = [(b, idx, text) for b in books for idx, text in enumerate(build_chunks(b, settings.chunk_max_chars))]
+    vecs = embeddings.embed_batch([text for _, _, text in chunks])
+    client = vector_store.get_client()
+    vector_store.ensure_collection(client, dim=len(vecs[0]))
+    vector_store.upsert_chunks(client, chunks, vecs)
+    logger.info(f'embedded and upserted {len(chunks)} chunks into qdrant collection "{settings.qdrant_collection}"')
 
 
 if __name__ == '__main__':
