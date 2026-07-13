@@ -8,6 +8,7 @@ class Settings(BaseSettings):
 
     sqlite_path: str = 'data/library.db'
     catalog_path: str = 'data/catalog.json'
+    chunk_max_chars: int = 1500
 
 
 settings = Settings()

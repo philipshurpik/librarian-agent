@@ -3,7 +3,7 @@ from pathlib import Path
 
 from conftest import RAW, make_book
 
-from librarian.ingest import dedupe_books, load_books
+from librarian.ingest import _chunk_text, build_chunks, dedupe_books, load_books
 
 CATALOG = Path(__file__).parents[1] / 'data' / 'catalog.json'
 
@@ -38,6 +38,36 @@ def test_content_duplicate_tie_breaks_on_smaller_id():
 def test_same_title_different_author_is_not_a_duplicate():
     other = make_book(id='bk-999', attributes={**RAW['attributes'], 'author': 'John Smith'})
     assert len(dedupe_books([make_book(), other])) == 2
+
+
+def test_chunk_text_packs_paragraphs_up_to_budget():
+    paras = ['a' * 400, 'b' * 400, 'c' * 400]
+    chunks = _chunk_text('\n\n'.join(paras), max_chars=900)
+    assert chunks == ['\n\n'.join(paras[:2]), paras[2]]
+
+
+def test_chunk_text_hard_splits_oversized_paragraph():
+    chunks = _chunk_text('word ' * 400, max_chars=1500)  # one 2000-char paragraph, no \n\n
+    assert len(chunks) == 2
+    assert all(len(c) <= 1500 for c in chunks)
+    assert ' '.join(chunks) == ('word ' * 400).strip()
+
+
+def test_build_chunks_prefixes_title_and_author():
+    (chunk,) = build_chunks(make_book(), max_chars=1500)
+    assert chunk == 'Some Title by Jane Doe.\n\nA fine book.'
+
+
+def test_build_chunks_fallback_without_description():
+    (chunk,) = build_chunks(make_book(description=None), max_chars=1500)
+    assert chunk == 'Some Title by Jane Doe. Topic: databases.'
+
+
+def test_build_chunks_splits_long_description():
+    book = make_book(description='\n\n'.join(['word ' * 100] * 4))
+    chunks = build_chunks(book, max_chars=600)
+    assert len(chunks) == 4
+    assert all(c.startswith('Some Title by Jane Doe.') for c in chunks)
 
 
 def test_real_catalog_dedupes_to_expected():

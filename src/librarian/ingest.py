@@ -3,6 +3,7 @@ import logging
 from collections.abc import Callable
 from contextlib import closing
 from pathlib import Path
+from textwrap import wrap
 
 from librarian.config import settings
 from librarian.models import Book
@@ -39,6 +40,35 @@ def dedupe_books(books: list[Book]) -> list[Book]:
     if content_dups := [b.id for b in by_id if b not in unique]:
         logger.info(f'dedupe: dropped content duplicates: {content_dups}')
     return unique
+
+
+def _split_oversized(para: str, max_chars: int) -> list[str]:
+    """Split oversized paragraphs by words up to max_chars, otherwise leave one parahraph"""
+    return [para] if len(para) <= max_chars else wrap(para, max_chars)
+
+
+def _chunk_text(text: str, max_chars: int) -> list[str]:
+    """Pack paragraphs into chunks of at most max_chars; oversized paragraphs are word-wrapped."""
+    paras = [p for para in text.split('\n\n') for p in _split_oversized(para, max_chars)]
+    chunks, current = [], ''
+    for para in paras:
+        if current and len(current) + len(para) + 2 > max_chars:
+            chunks.append(current)
+            current = para
+        else:
+            current = f'{current}\n\n{para}' if current else para
+    return [*chunks, current] if current else chunks
+
+
+def build_chunks(book: Book, max_chars: int) -> list[str]:
+    """Texts to embed for one book, each prefixed with title/author for retrieval context.
+
+    Books without a description get a metadata-only fallback so they stay discoverable.
+    """
+    prefix = f'{book.title} by {book.attributes.author}.'
+    if not book.description:
+        return [f'{prefix} Topic: {book.attributes.topic}.']
+    return [f'{prefix}\n\n{chunk}' for chunk in _chunk_text(book.description, max_chars)]
 
 
 def run() -> None:
