@@ -8,3 +8,6 @@ lint:
 
 test:
 	uv run python -m pytest tests/ -v
+
+ingest:
+	uv run python -m librarian.ingest
