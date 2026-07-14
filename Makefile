@@ -1,4 +1,4 @@
-.PHONY: install lint test ingest eval serve chat
+.PHONY: install lint test ingest eval serve chat up down docker-ingest
 
 install:
 	uv sync
@@ -20,3 +20,12 @@ serve:
 
 chat:
 	uv run python demo.py
+
+up:
+	docker compose up -d --build
+
+down:
+	docker compose down
+
+docker-ingest:
+	docker compose run --rm api python -m librarian.ingest
