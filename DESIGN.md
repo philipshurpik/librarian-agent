@@ -194,4 +194,5 @@ client (demo.py / curl)
   - Cross-encoder reranking would fix homonym collisions that dense retrieval cannot separate (surfaced by eval), like 
     ("monolith buildings construction" -> *Monolith to Microservices* at 0.457)
 - **Topic enum is a startup snapshot:**
-  - a topic added by ingest becomes filterable after restart; production would refresh it on an ingest signal.
+  - compose orders ingest before the api, so first boot sees the full vocabulary; a topic added by a later
+    re-ingest becomes filterable only after an api restart; production would refresh it on an ingest signal.

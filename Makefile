@@ -28,4 +28,4 @@ down:
 	docker compose down
 
 docker-ingest:
-	docker compose run --rm api python -m librarian.ingest
+	docker compose run --rm ingest

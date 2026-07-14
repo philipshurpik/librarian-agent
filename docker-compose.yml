@@ -1,3 +1,14 @@
+x-app: &app
+  build: .
+  env_file: .env
+  environment:
+    QDRANT_URL: http://qdrant:6333
+  volumes:
+    - ./data:/app/data
+  depends_on:
+    qdrant:
+      condition: service_healthy
+
 services:
   qdrant:
     image: qdrant/qdrant:v1.18.2  # keep the server minor in lockstep with the qdrant-client pin
@@ -11,18 +22,20 @@ services:
       timeout: 2s
       retries: 20
 
+  ingest:
+    <<: *app
+    command: python -m librarian.ingest
+    restart: 'no'  # one-shot: populates the catalog, then exits; idempotent, so re-running on every `up` is free
+
   api:
-    build: .
+    <<: *app
     ports:
       - '8000:8000'
-    env_file: .env
-    environment:
-      QDRANT_URL: http://qdrant:6333
-    volumes:
-      - ./data:/app/data
-    depends_on:
+    depends_on:  # merge keys don't deep-merge: restate qdrant alongside ingest
       qdrant:
-        condition: service_healthy  # gates both `up` and `docker compose run` (make docker-ingest)
+        condition: service_healthy
+      ingest:
+        condition: service_completed_successfully  # api boots against a populated catalog (topic enum reads it at startup)
     healthcheck:
       test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s

@@ -9,10 +9,14 @@ Architecture and reasoning live in [DESIGN.md](DESIGN.md).
 
 ```bash
 cp .env.example .env        # put your OpenAI API key in
-make up                     # build + start api and qdrant (docker compose up -d --build)
-make docker-ingest          # populate the catalog (docker compose run --rm api python -m librarian.ingest)
+make up                     # build + start everything (docker compose up -d --build)
 make chat                   # chat from your terminal (needs uv locally — or use the curl examples below)
 ```
+
+Ingestion runs as a one-shot compose service before the api starts, so the first `make up` populates
+the catalog automatically. Changed `data/catalog.json`? `make docker-ingest` re-runs the pipeline
+(idempotent — only new/changed books are re-embedded). If `make up` fails with `dependency failed to
+start`, check `docker compose logs ingest` — usually a missing or invalid `OPENAI_API_KEY`.
 
 ## Talking to the service
 
