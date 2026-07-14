@@ -20,10 +20,38 @@ def _result(hit: dict) -> dict:
     return {k: hit[k] for k in keys} | {'snippet': hit['text'][:_SNIPPET_CHARS]}
 
 
+_SEARCH_SCHEMA = {
+    'type': 'function',
+    'function': {
+        'name': 'search_catalog',
+        'description': 'Semantic search over the library catalog; returns best-matching books with scores.',
+        'parameters': {
+            'type': 'object',
+            'properties': {'query': {'type': 'string', 'description': 'what the user wants to read about'}},
+            'required': ['query'],
+        },
+    },
+}
+
+
 def search_catalog(query: str, limit: int = 5) -> list[dict]:
     """Best-matching books for a free-text query."""
     hits = vector_store.search(_qdrant(), embeddings.embed_query(query), limit=limit)
     return [_result(h) for h in hits]
+
+
+_AVAILABILITY_SCHEMA = {
+    'type': 'function',
+    'function': {
+        'name': 'check_availability',
+        'description': 'How many copies of a book are currently available to reserve.',
+        'parameters': {
+            'type': 'object',
+            'properties': {'book_id': {'type': 'string', 'description': 'catalog id, e.g. bk-004'}},
+            'required': ['book_id'],
+        },
+    },
+}
 
 
 def check_availability(book_id: str) -> dict:
@@ -34,6 +62,20 @@ def check_availability(book_id: str) -> dict:
     return {'book_id': book_id, 'title': row['title'], 'available': row['available']}
 
 
+_RESERVE_SCHEMA = {
+    'type': 'function',
+    'function': {
+        'name': 'reserve_book',
+        'description': 'Reserve one copy of a book. Call only after the user explicitly asked to reserve it.',
+        'parameters': {
+            'type': 'object',
+            'properties': {'book_id': {'type': 'string', 'description': 'catalog id, e.g. bk-004'}},
+            'required': ['book_id'],
+        },
+    },
+}
+
+
 def reserve_book(book_id: str) -> dict:
     """Reserve one copy; the UPDATE is atomic, so concurrent requests cannot oversell."""
     with closing(db.connect(settings.sqlite_path)) as conn:
@@ -42,6 +84,25 @@ def reserve_book(book_id: str) -> dict:
         reserved = db.reserve_book(conn, book_id)
         available = db.get_book(conn, book_id)['available']
     return {'book_id': book_id, 'reserved': reserved, 'available': available}
+
+
+_RECOMMEND_SCHEMA = {
+    'type': 'function',
+    'function': {
+        'name': 'recommend',
+        'description': 'Recommend available books for the user interests, optionally filtered by topic/level. '
+        'A "note" in the result means matches are weak — present them as closest alternatives.',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'interests': {'type': 'string', 'description': 'what the user is looking for'},
+                'topic': {'type': 'string'},
+                'level': {'type': 'string', 'enum': ['beginner', 'intermediate', 'advanced']},
+            },
+            'required': ['interests'],
+        },
+    },
+}
 
 
 def recommend(interests: str, topic: str | None = None, level: str | None = None, limit: int = 3) -> dict:
@@ -55,3 +116,6 @@ def recommend(interests: str, topic: str | None = None, level: str | None = None
     if results[0]['score'] < _WEAK_SCORE:
         return {'results': results, 'note': 'weak matches only — consider relaxing topic/level filters'}
     return {'results': results}
+
+
+TOOL_SCHEMAS = [_SEARCH_SCHEMA, _AVAILABILITY_SCHEMA, _RESERVE_SCHEMA, _RECOMMEND_SCHEMA]
