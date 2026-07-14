@@ -1,0 +1,32 @@
+from fastapi.testclient import TestClient
+
+from librarian import api
+
+client = TestClient(api.app)
+
+
+def test_health():
+    assert client.get('/health').json() == {'status': 'ok'}
+
+
+def test_chat_replies_and_threads_history(monkeypatch):
+    loop_inputs = []
+
+    async def fake_run(messages):
+        loop_inputs.append(messages)
+        return [
+            {'role': 'assistant', 'content': None, 'tool_calls': [{'id': 'c-1'}]},
+            {'role': 'tool', 'tool_call_id': 'c-1', 'content': '[]'},
+            {'role': 'assistant', 'content': 'We have the Kafka Guide.'},
+        ]
+
+    monkeypatch.setattr(api.loop, 'run', fake_run)
+
+    body = client.post('/chat', json={'message': 'kafka?'}).json()
+    assert loop_inputs[0] == [{'role': 'user', 'content': 'kafka?'}]
+    assert body['reply'] == 'We have the Kafka Guide.'
+    assert [m['role'] for m in body['history']] == ['user', 'assistant', 'tool', 'assistant']
+
+    followup = client.post('/chat', json={'message': 'reserve it', 'history': body['history']}).json()
+    assert loop_inputs[1] == [*body['history'], {'role': 'user', 'content': 'reserve it'}]
+    assert len(followup['history']) == len(body['history']) + 4  # prior turn + user + 3 produced

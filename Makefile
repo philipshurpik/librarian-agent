@@ -1,4 +1,4 @@
-.PHONY: install lint test ingest eval serve
+.PHONY: install lint test ingest eval serve chat
 
 install:
 	uv sync
@@ -14,3 +14,9 @@ ingest:
 
 eval:
 	uv run python evals/retrieval.py
+
+serve:
+	uv run uvicorn librarian.api:app --reload
+
+chat:
+	uv run python demo.py
