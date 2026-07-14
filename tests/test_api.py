@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+from openai import OpenAIError
 
 from librarian import api
 
@@ -38,6 +39,16 @@ def test_chat_tolerates_empty_final_content(monkeypatch):
 
     monkeypatch.setattr(api.loop, 'run', fake_run)
     assert client.post('/chat', json={'message': 'hi'}).json()['reply'] == ''
+
+
+def test_chat_returns_503_when_provider_fails(monkeypatch):
+    async def fake_run(messages):
+        raise OpenAIError('provider down')
+
+    monkeypatch.setattr(api.loop, 'run', fake_run)
+    response = client.post('/chat', json={'message': 'hi'})
+    assert response.status_code == 503
+    assert 'unavailable' in response.json()['detail']
 
 
 def test_chat_rejects_system_role_in_history():
