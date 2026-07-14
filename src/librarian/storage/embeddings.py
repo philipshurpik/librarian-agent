@@ -13,3 +13,7 @@ def embed_batch(texts: list[str]) -> list[list[float]]:
         response = client.embeddings.create(model=settings.embedding_model, input=texts[i : i + _BATCH_SIZE])
         vectors.extend(d.embedding for d in sorted(response.data, key=lambda d: d.index))
     return vectors
+
+
+def embed_query(text: str) -> list[float]:
+    return embed_batch([text])[0]

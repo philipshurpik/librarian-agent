@@ -1,7 +1,7 @@
 from uuid import NAMESPACE_URL, uuid5
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, PointIdsList, PointStruct, VectorParams
+from qdrant_client.models import Distance, FieldCondition, Filter, MatchValue, PointIdsList, PointStruct, VectorParams
 
 from librarian.config import settings
 from librarian.models import Book
@@ -20,6 +20,22 @@ def ensure_collection(client: QdrantClient, dim: int) -> None:
     if not client.collection_exists(settings.qdrant_collection):
         vectors_config = VectorParams(size=dim, distance=Distance.COSINE)
         client.create_collection(settings.qdrant_collection, vectors_config=vectors_config)
+
+
+def search(
+    client: QdrantClient, vector: list[float], limit: int = 5, filters: dict[str, str] | None = None
+) -> list[dict]:
+    """Top books by cosine similarity, best chunk each; filters are exact payload matches ({'level': 'advanced'})."""
+    must = [FieldCondition(key=k, match=MatchValue(value=v)) for k, v in (filters or {}).items()]
+    groups = client.query_points_groups(
+        settings.qdrant_collection,
+        query=vector,
+        group_by='book_id',
+        limit=limit,
+        group_size=1,
+        query_filter=Filter(must=must) if must else None,
+    ).groups
+    return [{'score': round(g.hits[0].score, 3), **g.hits[0].payload} for g in groups]
 
 
 def delete_points(client: QdrantClient, keys: list[tuple[str, int]]) -> None:
