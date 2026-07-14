@@ -31,7 +31,7 @@ async def setup_tools(tmp_path, monkeypatch):
 async def test_search_catalog_returns_ranked_results(tmp_path, monkeypatch):
     await setup_tools(tmp_path, monkeypatch)
 
-    results = await tools.search_catalog('books like A')
+    results = (await tools.search_catalog('books like A'))['results']
     assert [r['book_id'] for r in results] == ['bk-a', 'bk-b']
     assert (results[0]['title'], results[0]['score']) == ('Book A', 1.0)
     assert len(results[0]['snippet']) == tools._SNIPPET_CHARS  # long chunk text is truncated
@@ -63,7 +63,7 @@ async def test_recommend_filters_annotates_availability_and_flags_weak_matches(t
     weak = await tools.recommend('something like A', topic='streaming')  # filter leaves only the orthogonal book
     assert [r['book_id'] for r in weak['results']] == ['bk-b']
     assert weak['results'][0]['available'] == 0
-    assert weak['note'] == 'weak matches only — consider relaxing topic/level filters'
+    assert weak['note'].startswith('weak matches only')
 
     assert await tools.recommend('anything', level='expert') == {
         'results': [],

@@ -50,7 +50,7 @@ async def main() -> int:
     print('--- golden queries (expected book in top 3) ---')
     misses, relevant_scores = [], []
     for query, expected in GOLDEN.items():
-        hits = await search_catalog(query, limit=3)
+        hits = (await search_catalog(query, limit=3))['results']
         rank = next((i for i, h in enumerate(hits) if expected.lower() in h['title'].lower()), None)
         relevant_scores.append(hits[0]['score'])
         misses.extend([query] if rank is None else [])
@@ -60,7 +60,7 @@ async def main() -> int:
     print('--- off-topic queries (expect scores below the threshold) ---')
     off_scores = []
     for query in OFF_TOPIC:
-        top = (await search_catalog(query, limit=1))[0]
+        top = (await search_catalog(query, limit=1))['results'][0]
         off_scores.append(top['score'])
         print(f'       | top {top["score"]:.3f} {top["title"][:42]:42} | {query}')
 

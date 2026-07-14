@@ -20,11 +20,21 @@ def _result(hit: dict) -> dict:
     return {k: hit[k] for k in keys} | {'snippet': hit['text'][:_SNIPPET_CHARS]}
 
 
+def _envelope(results: list[dict], empty_note: str) -> dict:
+    """Shared score guard: empty or weak results (top score < _WEAK_SCORE) carry a note the model must relay."""
+    if not results:
+        return {'results': [], 'note': empty_note}
+    if results[0]['score'] < _WEAK_SCORE:
+        return {'results': results, 'note': 'weak matches only — present them as closest alternatives'}
+    return {'results': results}
+
+
 _SEARCH_SCHEMA = {
     'type': 'function',
     'function': {
         'name': 'search_catalog',
-        'description': 'Semantic search over the library catalog; returns best-matching books with scores.',
+        'description': 'Semantic search over the library catalog; returns best-matching books with scores. '
+        'A "note" in the result means matches are weak — present them as closest alternatives.',
         'parameters': {
             'type': 'object',
             'properties': {'query': {'type': 'string', 'description': 'what the user wants to read about'}},
@@ -34,10 +44,10 @@ _SEARCH_SCHEMA = {
 }
 
 
-async def search_catalog(query: str, limit: int = 5) -> list[dict]:
+async def search_catalog(query: str, limit: int = 5) -> dict:
     """Best-matching books for a free-text query; `limit` is deliberately not in the schema — callers (evals) set it."""
     hits = await vector_store.search(_qdrant(), await embeddings.embed_query(query), limit=limit)
-    return [_result(h) for h in hits]
+    return _envelope([_result(h) for h in hits], empty_note='no matching books found')
 
 
 _AVAILABILITY_SCHEMA = {
@@ -97,7 +107,8 @@ _RECOMMEND_SCHEMA = {
     'type': 'function',
     'function': {
         'name': 'recommend',
-        'description': 'Recommend available books for the user interests, optionally filtered by topic/level. '
+        'description': 'Recommend books for the user interests, optionally filtered by topic/level; '
+        'each result includes how many copies are available. '
         'Omit topic and level unless the user explicitly asked to narrow. '
         'A "note" in the result means matches are weak — present them as closest alternatives.',
         'parameters': {
@@ -122,11 +133,7 @@ async def recommend(interests: str, topic: str | None = None, level: str | None 
         rows = [(h, db.get_book(conn, h['book_id'])) for h in hits]
     # a hit without a SQLite row is index drift (stale Qdrant point) — skip it rather than crash
     results = [_result(h) | {'available': row['available']} for h, row in rows if row]
-    if not results:
-        return {'results': [], 'note': 'no books matched these filters'}
-    if results[0]['score'] < _WEAK_SCORE:
-        return {'results': results, 'note': 'weak matches only — consider relaxing topic/level filters'}
-    return {'results': results}
+    return _envelope(results, empty_note='no books matched these filters')
 
 
 TOOL_SCHEMAS = [_SEARCH_SCHEMA, _AVAILABILITY_SCHEMA, _RESERVE_SCHEMA, _RECOMMEND_SCHEMA]
