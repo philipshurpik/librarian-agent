@@ -1,8 +1,12 @@
 .venv
 .git
 .env
+.idea
 data
 tests
 evals
 __pycache__
 *.pyc
+*.pdf
+.pytest_cache
+.ruff_cache
