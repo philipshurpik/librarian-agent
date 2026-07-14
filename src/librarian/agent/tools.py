@@ -119,7 +119,9 @@ async def recommend(interests: str, topic: str | None = None, level: str | None 
     vector = await embeddings.embed_query(interests)
     hits = await vector_store.search(_qdrant(), vector, limit=limit, filters=filters or None)
     with closing(db.connect(settings.sqlite_path)) as conn:
-        results = [_result(h) | {'available': db.get_book(conn, h['book_id'])['available']} for h in hits]
+        rows = [(h, db.get_book(conn, h['book_id'])) for h in hits]
+    # a hit without a SQLite row is index drift (stale Qdrant point) — skip it rather than crash
+    results = [_result(h) | {'available': row['available']} for h, row in rows if row]
     if not results:
         return {'results': [], 'note': 'no books matched these filters'}
     if results[0]['score'] < _WEAK_SCORE:

@@ -45,3 +45,8 @@ def test_reingest_preserves_reservations(tmp_path):
 
     row = db.get_book(conn, 'bk-001')
     assert (row['reserved_units'], row['available']) == (1, 4)
+
+    db.upsert_books(conn, [make_book(available_units=0)])  # stock pulled below existing reservations
+    row = db.get_book(conn, 'bk-001')
+    assert (row['reserved_units'], row['available']) == (1, 0)  # clamped, never negative
+    assert not db.reserve_book(conn, 'bk-001')

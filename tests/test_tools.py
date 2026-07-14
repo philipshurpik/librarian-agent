@@ -71,6 +71,17 @@ async def test_recommend_filters_annotates_availability_and_flags_weak_matches(t
     }
 
 
+async def test_recommend_skips_hits_missing_from_sqlite(tmp_path, monkeypatch):
+    await setup_tools(tmp_path, monkeypatch)
+    conn = db.connect(settings.sqlite_path)
+    conn.execute("DELETE FROM books WHERE id = 'bk-b'")
+    conn.commit()
+    conn.close()
+
+    results = (await tools.recommend('something like A'))['results']
+    assert [r['book_id'] for r in results] == ['bk-a']  # stale Qdrant point for bk-b is dropped, not a crash
+
+
 async def test_topic_param_lists_catalog_vocabulary_or_stays_open(tmp_path, monkeypatch):
     await setup_tools(tmp_path, monkeypatch)
     assert tools._topic_param() == {'type': 'string', 'enum': ['databases', 'streaming']}

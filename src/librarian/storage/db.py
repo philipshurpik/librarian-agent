@@ -73,7 +73,8 @@ def list_topics(conn: sqlite3.Connection) -> list[str]:
 
 
 def get_book(conn: sqlite3.Connection, book_id: str) -> sqlite3.Row | None:
-    query = 'SELECT *, available_units - reserved_units AS available FROM books WHERE id = ?'
+    """Availability is clamped at 0: a catalog update may pull stock below already-made reservations."""
+    query = 'SELECT *, MAX(available_units - reserved_units, 0) AS available FROM books WHERE id = ?'
     return conn.execute(query, (book_id,)).fetchone()
 
 

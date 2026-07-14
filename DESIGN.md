@@ -54,7 +54,8 @@ Qdrant: content, embeddings for semantic search
     full recovery means re-embedding from SQLite (the system of record has everything needed).
 - **Re-ingest cannot corrupt service state:**
   - The catalog owns stock (`available_units`); reservation state (`reserved_units` column) is never written
-    by ingest, and effective availability is computed at read time (`available_units - reserved_units`).
+    by ingest, and effective availability is computed at read time, clamped at zero
+    (`max(available_units - reserved_units, 0)` - a catalog update may pull stock below existing reservations).
 
 ## Ingestion & embeddings: migration 
 
