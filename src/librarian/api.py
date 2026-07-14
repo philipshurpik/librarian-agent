@@ -3,7 +3,7 @@
 import logging
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from librarian.agent import loop
 
@@ -14,6 +14,14 @@ app = FastAPI(title='Ask-a-Librarian')
 class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
+
+    @field_validator('history')
+    @classmethod
+    def reject_system_messages(cls, history: list[dict]) -> list[dict]:
+        """The server owns the system prompt; a client-injected one would override it."""
+        if any(m.get('role') == 'system' for m in history):
+            raise ValueError('history must not contain system messages')
+        return history
 
 
 class ChatResponse(BaseModel):
