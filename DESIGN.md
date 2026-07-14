@@ -55,3 +55,36 @@ Qdrant: content, embeddings for semantic search
 - **Re-ingest cannot corrupt service state:**
   - The catalog owns stock (`available_units`); reservation state (planned `reserved_units` column) is never written 
     by ingest, and effective availability is computed at read time (`available - reserved`).
+
+## Ingestion & embeddings: migration 
+
+**Model migration / re-embedding cost:**
+- Never mutate the live index. Implemented as one collection per model: the name is derived from 
+  `embedding_model` (`books__openai-3-small`), so a model switch lands in a fresh collection with the 
+  right dimensions - full embed there, old collection kept for existing consumers while they upgrade (and for rollback). 
+  - Query model and index always match by construction - a service can never search vectors built by a different model.
+- Production migration:
+  - Backfill the new embeddings for existing books as supervised, re-runnable job, ingest dual-writes both collections. 
+    The promotion gate is mechanical:
+    - equal exact point counts in old and new collections - chunking is model-independent, so points match 1:1 
+    - ledger's `sum(chunk_count)` arbitrates any mismatch
+    - plus recall spot-checks on the new collection.
+    Consumers then move one config change at a time, drop the old collection when the last consumer moves.
+- Cost sanity:
+  - 1M docs * ~300 tokens -> ~$6 with text-embedding-3-small;
+  - 100M -> ~$600 - embedding model throughput limit and database are the real constraints, not dollars.
+
+## Ingestion & embeddings: scaling
+
+**100M documents.**
+- Change detection moves to events: source-DB change events -> queue (Kafka/PubSub) -> idempotent embed consumers; 
+  - Ingestion becomes an always-on pipeline fully decoupled from serving.
+- Index size (assumption 1.5 chunks on avg for book library descriptions): 
+  - ~150M points * 1536d * 4B -> ~920GB of raw vectors (by default)  + (HNSW on top - both on disk and RAM)
+  - Possible levers:
+    - Set datatype=Datatype.FLOAT16 (near-lossless, if embedding model run in half precision) -> 460GB
+    - Using Matryoshka embeddings (1536d -> 768d) can reduce storage 2x even more 460 GB -> 230 GB (on disk)
+    - Qdrant 1.18 ships [TurboQuant](https://qdrant.tech/articles/turboquant-quantization/). 
+      Realistically we can use TQ 4-bit with minimal recall change and get ~290GB on disk with ~60 GB vectors on RAM for faster retrieval 
+  - Separate evals for our data should be set up to evaluate which technique, or their combination works for our data and tasks
+
