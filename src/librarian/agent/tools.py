@@ -86,17 +86,25 @@ def reserve_book(book_id: str) -> dict:
     return {'book_id': book_id, 'reserved': reserved, 'available': available}
 
 
+def _topic_param() -> dict:
+    """Enum of the catalog's actual topic vocabulary (read once at startup) — the model cannot invent values."""
+    with closing(db.connect(settings.sqlite_path)) as conn:
+        topics = db.list_topics(conn)
+    return {'type': 'string', 'enum': topics} if topics else {'type': 'string'}
+
+
 _RECOMMEND_SCHEMA = {
     'type': 'function',
     'function': {
         'name': 'recommend',
         'description': 'Recommend available books for the user interests, optionally filtered by topic/level. '
+        'Omit topic and level unless the user explicitly asked to narrow. '
         'A "note" in the result means matches are weak — present them as closest alternatives.',
         'parameters': {
             'type': 'object',
             'properties': {
                 'interests': {'type': 'string', 'description': 'what the user is looking for'},
-                'topic': {'type': 'string'},
+                'topic': _topic_param(),
                 'level': {'type': 'string', 'enum': ['beginner', 'intermediate', 'advanced']},
             },
             'required': ['interests'],

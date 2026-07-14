@@ -63,3 +63,11 @@ def test_recommend_filters_annotates_availability_and_flags_weak_matches(tmp_pat
     assert weak['note'] == 'weak matches only — consider relaxing topic/level filters'
 
     assert tools.recommend('anything', level='expert') == {'results': [], 'note': 'no books matched these filters'}
+
+
+def test_topic_param_lists_catalog_vocabulary_or_stays_open(tmp_path, monkeypatch):
+    setup_tools(tmp_path, monkeypatch)
+    assert tools._topic_param() == {'type': 'string', 'enum': ['databases', 'streaming']}
+
+    monkeypatch.setattr(settings, 'sqlite_path', str(tmp_path / 'empty.db'))
+    assert tools._topic_param() == {'type': 'string'}  # before first ingest: no enum, not an all-forbidding empty one

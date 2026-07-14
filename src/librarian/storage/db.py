@@ -68,6 +68,10 @@ def load_ledger(conn: sqlite3.Connection, ids: list[str]) -> dict[str, tuple[str
     return {book_id: (h, count or 0) for book_id, h, count in conn.execute(query, [json.dumps(ids)])}
 
 
+def list_topics(conn: sqlite3.Connection) -> list[str]:
+    return [t for (t,) in conn.execute('SELECT DISTINCT topic FROM books ORDER BY topic')]
+
+
 def get_book(conn: sqlite3.Connection, book_id: str) -> sqlite3.Row | None:
     query = 'SELECT *, available_units - reserved_units AS available FROM books WHERE id = ?'
     return conn.execute(query, (book_id,)).fetchone()
