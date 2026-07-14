@@ -23,3 +23,25 @@ def test_upsert_updates_existing_row(tmp_path):
     row = conn.execute('SELECT available_units, description FROM books').fetchone()
     assert row['available_units'] == 7
     assert row['description'] is None
+
+
+def test_reserve_book_stops_at_available_units(tmp_path):
+    conn = db.connect(tmp_path / 'library.db')
+    db.upsert_books(conn, [make_book(available_units=2)])
+
+    assert db.reserve_book(conn, 'bk-001')
+    assert db.reserve_book(conn, 'bk-001')
+    assert not db.reserve_book(conn, 'bk-001')  # pool exhausted
+    assert db.get_book(conn, 'bk-001')['available'] == 0
+    assert not db.reserve_book(conn, 'missing')
+    assert db.get_book(conn, 'missing') is None
+
+
+def test_reingest_preserves_reservations(tmp_path):
+    conn = db.connect(tmp_path / 'library.db')
+    db.upsert_books(conn, [make_book(available_units=2)])
+    db.reserve_book(conn, 'bk-001')
+    db.upsert_books(conn, [make_book(available_units=5)])  # catalog update arrives
+
+    row = db.get_book(conn, 'bk-001')
+    assert (row['reserved_units'], row['available']) == (1, 4)

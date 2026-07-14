@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS books (
     level TEXT,
     description TEXT,
     available_units INTEGER NOT NULL DEFAULT 0,
+    reserved_units INTEGER NOT NULL DEFAULT 0,
     content_hash TEXT,
     chunk_count INTEGER
 );
@@ -65,6 +66,19 @@ def load_ledger(conn: sqlite3.Connection, ids: list[str]) -> dict[str, tuple[str
     """What each book (in delta we are currently processing) looked like when it was last indexed."""
     query = 'SELECT id, content_hash, chunk_count FROM books WHERE id IN (SELECT value FROM json_each(?))'
     return {book_id: (h, count or 0) for book_id, h, count in conn.execute(query, [json.dumps(ids)])}
+
+
+def get_book(conn: sqlite3.Connection, book_id: str) -> sqlite3.Row | None:
+    query = 'SELECT *, available_units - reserved_units AS available FROM books WHERE id = ?'
+    return conn.execute(query, (book_id,)).fetchone()
+
+
+def reserve_book(conn: sqlite3.Connection, book_id: str) -> bool:
+    """Atomic check-and-increment: cannot oversell under concurrent requests."""
+    query = 'UPDATE books SET reserved_units = reserved_units + 1 WHERE id = ? AND reserved_units < available_units'
+    ok = conn.execute(query, (book_id,)).rowcount == 1
+    conn.commit()
+    return ok
 
 
 def update_ledger(conn: sqlite3.Connection, entries: dict[str, tuple[str, int]]) -> None:
