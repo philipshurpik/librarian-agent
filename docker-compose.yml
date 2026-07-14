@@ -5,6 +5,11 @@ services:
       - '6333:6333'
     volumes:
       - qdrant_storage:/qdrant/storage
+    healthcheck:
+      test: ['CMD-SHELL', 'bash -c ":> /dev/tcp/127.0.0.1/6333" || exit 1']  # image ships no curl; TCP probe
+      interval: 3s
+      timeout: 2s
+      retries: 20
 
   api:
     build: .
@@ -16,7 +21,8 @@ services:
     volumes:
       - ./data:/app/data
     depends_on:
-      - qdrant
+      qdrant:
+        condition: service_healthy  # gates both `up` and `docker compose run` (make docker-ingest)
     healthcheck:
       test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
