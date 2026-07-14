@@ -1,6 +1,7 @@
 import asyncio
 import json
 import logging
+from functools import cache
 
 from openai import AsyncOpenAI
 
@@ -14,6 +15,11 @@ _MAX_TOOL_ROUNDS = 6
 _LLM_TIMEOUT_SECONDS = 60
 
 _TOOL_NAMES = {schema['function']['name'] for schema in tools.TOOL_SCHEMAS}
+
+
+@cache
+def _client() -> AsyncOpenAI:
+    return AsyncOpenAI(api_key=settings.openai_api_key, timeout=_LLM_TIMEOUT_SECONDS)
 
 
 async def _execute(call) -> str:
@@ -40,7 +46,7 @@ def _as_dict(message) -> dict:
 
 async def run(messages: list[dict]) -> list[dict]:
     """Advance the conversation by one agent turn; returns only the newly produced messages."""
-    client = AsyncOpenAI(api_key=settings.openai_api_key, timeout=_LLM_TIMEOUT_SECONDS)
+    client = _client()
     conversation = [{'role': 'system', 'content': SYSTEM_PROMPT}, *messages]
     produced: list[dict] = []
     for _ in range(_MAX_TOOL_ROUNDS):

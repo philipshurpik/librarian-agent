@@ -129,12 +129,14 @@ client (demo.py / curl)
   - the system prompt tells the model to present these as closest alternatives.
 - **Reservations cannot oversell:** 
   - one atomic `UPDATE ... WHERE reserved_units < available_units`; effective availability computed at read time;
+  - Assumption: a reservation is an anonymous counter - no identity, no cancel, no expiry.
+    The multi-user shape is in "Out of scope" below.
 
 ## Service: scaling to ~10k concurrent users
 
 **What the current build already provides:**
 
-- **Stateless service tier:**
+- **Stateless service tier (in case of moving SQLite -> Postgres):**
   - `/chat` keeps no server-side state, so replicas behind a load balancer scale horizontally; any replica can serve any turn.
 - **Bounded turns by construction:**
   - the hard 6-round cap plus an explicit 60s timeout per LLM call limit worst-case latency and LLM spend per request.
@@ -157,6 +159,8 @@ client (demo.py / curl)
     - different settings are available for different model providers
     - self hosted models could provide KV cache reusage even for smaller prompts
 - **Conversation history growth:**
+  - Already bounded: `/chat` rejects oversized input (message length, history messages/chars) with 422 -
+    the client carries the history, so the server must cap what it accepts and pays to send to the LLM.
   - Depending on model and setup could also benefit from KV cache re-usage
   - Possible to summarize older turns beyond a token budget
 
@@ -194,6 +198,24 @@ client (demo.py / curl)
 - **Prompt injection via client history:** 
   - `/chat` rejects `system` role messages in the history from client (422 error) - the server owns system prompt 
   - Forged `tool`/`assistant` content remains possible, could be fixed with server-side sessions
+
+## Out of scope per the task: how each would land
+
+- **Auth:**
+  - A simple login (session cookie or JWT) in front of `/chat` - the app just needs to know who is asking.
+  - Mainly so a reservation belongs to a person (below); also lets us cap per-user usage.
+- **Multi-user session management:**
+  - Move history server-side: a session store (Redis/Postgres) keyed by session id;
+  - the client sends `session_id` + `message` instead of carrying the full history.
+  - The service tier stays stateless - state moves to a shared tier, any replica still serves any turn.
+  - Closes the forged `tool`/`assistant` history channel (failure modes above).
+- **Reservations with identity:**
+  - Today's anonymous counter becomes a `reservations` table (book_id, user_id, expires_at):
+    reserve/cancel are inserts/deletes, expiry frees the copy - needs auth above.
+- **Real vector-DB infrastructure:**
+  - index sizing, replication and quantization levers are in "Ingestion & embeddings: scaling".
+- **CI/CD:**
+  - deliberately omitted; the gates exist as Make targets (`lint`, `test`, `eval` as a retrieval-quality gate).
 
 ## What we cut 
 

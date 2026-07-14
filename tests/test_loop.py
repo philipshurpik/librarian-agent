@@ -25,7 +25,7 @@ class FakeOpenAI:
 
 async def run_agent(monkeypatch, script, user='find me a kafka book'):
     fake = FakeOpenAI(script)
-    monkeypatch.setattr(loop, 'AsyncOpenAI', lambda **kwargs: fake)
+    monkeypatch.setattr(loop, '_client', lambda: fake)
     produced = await loop.run([{'role': 'user', 'content': user}])
     return fake, produced
 

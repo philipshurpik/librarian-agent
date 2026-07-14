@@ -35,7 +35,7 @@ _SEARCH_SCHEMA = {
 
 
 async def search_catalog(query: str, limit: int = 5) -> list[dict]:
-    """Best-matching books for a free-text query."""
+    """Best-matching books for a free-text query; `limit` is deliberately not in the schema — callers (evals) set it."""
     hits = await vector_store.search(_qdrant(), await embeddings.embed_query(query), limit=limit)
     return [_result(h) for h in hits]
 
