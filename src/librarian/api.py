@@ -1,10 +1,11 @@
 """HTTP surface: a stateless chat endpoint driving the agent loop, plus a health probe."""
 
+import json
 import logging
 
 from fastapi import FastAPI, HTTPException
 from openai import OpenAIError
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from librarian.agent import loop
 
@@ -12,9 +13,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('api')
 app = FastAPI(title='Ask-a-Librarian')
 
+_MAX_MESSAGE_CHARS = 8_000
+_MAX_HISTORY_MESSAGES = 200
+_MAX_HISTORY_CHARS = 200_000  # ~50k tokens
+
 
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(max_length=_MAX_MESSAGE_CHARS)
     history: list[dict] = []
 
     @field_validator('history')
@@ -23,6 +28,14 @@ class ChatRequest(BaseModel):
         """The server owns the system prompt; a client-injected one would override it."""
         if any(m.get('role') == 'system' for m in history):
             raise ValueError('history must not contain system messages')
+        return history
+
+    @field_validator('history')
+    @classmethod
+    def cap_history_size(cls, history: list[dict]) -> list[dict]:
+        """The client carries the history, so the server must bound what it accepts (and pays to send to the LLM)."""
+        if len(history) > _MAX_HISTORY_MESSAGES or len(json.dumps(history)) > _MAX_HISTORY_CHARS:
+            raise ValueError(f'history too large: max {_MAX_HISTORY_MESSAGES} messages, {_MAX_HISTORY_CHARS} chars')
         return history
 
 
