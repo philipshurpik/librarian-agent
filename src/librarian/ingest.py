@@ -7,6 +7,8 @@ from hashlib import sha256
 from pathlib import Path
 from textwrap import wrap
 
+from pydantic import ValidationError
+
 from librarian.config import settings
 from librarian.models import Book
 from librarian.storage import db, embeddings, vector_store
@@ -15,8 +17,15 @@ logger = logging.getLogger('ingest')
 
 
 def load_books(path: str | Path) -> list[Book]:
-    """Parse raw catalog records; cleaning happens in the Book validators."""
-    return [Book(**record) for record in json.loads(Path(path).read_text())]
+    """Parse raw catalog records; cleaning happens in the Book validators; invalid records are skipped, not fatal."""
+    books = []
+    for idx, record in enumerate(json.loads(Path(path).read_text())):
+        try:
+            books.append(Book(**record))
+        except ValidationError as e:
+            first = e.errors()[0]
+            logger.warning(f'skipping invalid record {idx} (id={record.get("id")}): {first["loc"]}: {first["msg"]}')
+    return books
 
 
 def _rank(book: Book) -> tuple[int, str]:

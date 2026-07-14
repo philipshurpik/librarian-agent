@@ -14,6 +14,13 @@ def test_load_books_parses_and_cleans(tmp_path):
     assert [b.title for b in load_books(path)] == ['Messy Title']
 
 
+def test_load_books_skips_invalid_records(tmp_path):
+    no_author = {**RAW, 'id': 'bk-bad', 'attributes': {'topic': 'databases'}}
+    path = tmp_path / 'catalog.json'
+    path.write_text(json.dumps([RAW, no_author, {'id': 'bk-worse'}]))
+    assert [b.id for b in load_books(path)] == ['bk-001']  # corrupt entries are skipped, the batch survives
+
+
 def test_exact_id_duplicate_dropped():
     assert len(dedupe_books([make_book(), make_book()])) == 1
 

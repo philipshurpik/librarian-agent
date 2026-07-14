@@ -31,6 +31,8 @@ Qdrant: content, embeddings for semantic search
 
 - **Cleaning at the model boundary:**
   - All normalization (whitespace, HTML stripping, year coercion, unit clamping) lives in `Book` validators.
+  - A record failing validation is skipped with a warning - one corrupt entry must not block the batch;
+    production would route it to a dead-letter file for inspection.
 - **Dedupe: drop, don't merge:**
   - Two passes: remove duplicate ids, then deduplicate normalized (title, author) under different ids. 
   - Assumption: a content duplicate is a double entry, not extra stock. 
@@ -178,6 +180,10 @@ client (demo.py / curl)
   - the topic enum removes the invented-filter-value failure class at the schema level.
 - **Runaway loops:**
   - hard 6-round cap, then a final call with tools disabled forces a text answer.
+- **Provider outage / timeouts:**
+  - LLM calls carry a 60s timeout; a provider failure surfaces as a clean 503, not a stack trace.
+  - Retries with backoff and model fallback belong to the llm gateway;
+  - Only `reserve_book` mutates state and is never auto-retried - the model reports failure and user can re-ask.
 - **Prompt injection via catalog data:**
   - descriptions are untrusted input that reaches the model as tool content. 
     - tool results are structured JSON with 300-char snippets (small surface); 
