@@ -107,6 +107,9 @@ Qdrant: content, embeddings for semantic search
     - Qdrant 1.18 ships [TurboQuant](https://qdrant.tech/articles/turboquant-quantization/). 
       Realistically we can use TQ 4-bit with minimal recall change and get ~290GB on disk with ~60 GB vectors on RAM for faster retrieval 
   - Separate evals for our data should be set up to evaluate which technique, or their combination works for our data and tasks
+- Query serving at this scale:
+  - shard the collection across nodes (Qdrant distributed mode); replicas for QPS and failover;
+  - payload indexes on the filter fields (topic, level) so filtered search does not scan;
 
 ## Service: architecture
 
@@ -196,12 +199,15 @@ client (demo.py / curl)
   - Retries with backoff and model fallback belong to the llm gateway;
   - Only `reserve_book` mutates state and is never auto-retried - the model reports failure and user can re-ask.
 - **Prompt injection via catalog data:**
-  - descriptions are untrusted input that reaches the model as tool content. 
-    - tool results are structured JSON with 300-char snippets (small surface); 
-  - System prompt requires an explicit user request before `reserve_book`;
-    - tools are least-privilege (the only mutation is +1 reservation - no deletes). 
+  - descriptions are untrusted input that reaches the model as tool content.
+  - Mitigations reduce exposure, they do not prevent injection - the model still reads attacker text:
+    - the system prompt explicitly marks catalog text as data, not instructions;
+    - tool results are structured JSON with 300-char snippets (small surface);
+    - system prompt requires an explicit user request before `reserve_book`;
+    - tools are least-privilege (the only mutation is +1 reservation - no deletes).
   - Possible further work:
-    - Agentic eval suite, including focusing on prompt injection.
+    - injection eval suite: adversarial descriptions -> assert no unauthorized tool call / rule break;
+    - confirm-before-reserve turn in the UX, idempotency key on the mutation.
 - **Prompt injection via client history:** 
   - `/chat` rejects `system` role messages in the history from client (422 error) - the server owns system prompt 
   - Forged `tool`/`assistant` content remains possible, could be fixed with server-side sessions
