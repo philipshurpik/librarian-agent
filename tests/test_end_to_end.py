@@ -72,6 +72,21 @@ async def test_run_reembeds_only_changed_and_deletes_orphaned_chunks(tmp_path, m
     assert [r[0] for r in conn.execute('SELECT id FROM books ORDER BY id')] == ['bk-001', 'bk-002']
 
 
+async def test_metadata_only_change_updates_qdrant_payload(tmp_path, monkeypatch):
+    """Qdrant payload carries topic/level/year for filtering - a change to them alone must reindex the book."""
+    catalog = tmp_path / 'catalog.json'
+    client, calls = setup_run(tmp_path, monkeypatch, catalog_path=catalog)
+    catalog.write_text(json.dumps([RAW]))
+    await run()
+
+    catalog.write_text(json.dumps([{**RAW, 'attributes': {**RAW['attributes'], 'level': 'advanced', 'year': 2020}}]))
+    await run()
+
+    assert calls == [1, 1]  # same chunk text, but the payload changed - the book is not skipped
+    points, _ = await client.scroll(settings.qdrant_collection, limit=10)
+    assert (points[0].payload['level'], points[0].payload['year']) == ('advanced', 2020)
+
+
 async def test_failed_embed_is_retried_on_next_run(tmp_path, monkeypatch):
     """Ledger is written after the index write: a run that dies mid-embed leaves its delta marked as pending."""
     catalog = tmp_path / 'catalog.json'

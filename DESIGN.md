@@ -66,6 +66,13 @@ Qdrant: content, embeddings for semantic search
   `embedding_model` (`books__openai-3-small`), so a model switch lands in a fresh collection with the 
   right dimensions - full embed there, old collection kept for existing consumers while they upgrade (and for rollback). 
   - Query model and index always match by construction - a service can never search vectors built by a different model.
+- Ledger scope (assumption):
+  - The ledger (`content_hash`, `chunk_count`) tracks one active collection - the one derived from the current `embedding_model`.
+    A model switch fresh-indexes the new collection correctly, but the old collection stops receiving updates from that moment; 
+    switching back after content changed would serve stale chunks.
+  - This is safe exactly because migration runs as the dual-write below: both collections stay current
+    until cutover, and the old one is dropped, never resumed.
+  - If we want to have option to switch model back without dual-write, we need to have ledger (`content_hash`, `chunk_count`) per embedding model
 - Production migration:
   - Backfill the new embeddings for existing books as supervised, re-runnable job, ingest dual-writes both collections. 
     The promotion gate is mechanical:

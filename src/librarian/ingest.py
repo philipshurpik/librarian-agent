@@ -82,15 +82,16 @@ def build_chunks(book: Book, max_chars: int) -> list[str]:
     return [f'{prefix}\n\n{chunk}' for chunk in _chunk_text(book.description, max_chars)]
 
 
-def _content_hash(chunks: list[str]) -> str:
-    """Chunks content only - what we store in qdrant embeddings"""
-    return sha256('\x00'.join(chunks).encode()).hexdigest()
+def _content_hash(book: Book, chunks: list[str]) -> str:
+    """Everything Qdrant holds for the book: payload metadata + chunk texts - a metadata-only change must reindex."""
+    payload = json.dumps(book.attributes.model_dump(), sort_keys=True)
+    return sha256('\x00'.join([payload, *chunks]).encode()).hexdigest()
 
 
 async def run() -> None:
     books = dedupe_books(load_books(settings.catalog_path))
     chunks_by_book = {b.id: build_chunks(b, settings.chunk_max_chars) for b in books}
-    hashes = {b.id: _content_hash(chunks_by_book[b.id]) for b in books}
+    hashes = {b.id: _content_hash(b, chunks_by_book[b.id]) for b in books}
 
     with closing(db.connect(settings.sqlite_path)) as conn:
         ledger = db.load_ledger(conn, [b.id for b in books])
