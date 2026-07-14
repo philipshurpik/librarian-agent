@@ -3,6 +3,7 @@
 Needs live OpenAI + Qdrant with an ingested catalog: `make ingest && make eval`.
 """
 
+import asyncio
 import sys
 
 from sklearn.metrics import fbeta_score, precision_recall_curve
@@ -45,11 +46,11 @@ def calibrate_threshold(relevant: list[float], off_topic: list[float]) -> bool:
     return max(f2s) >= 0.9
 
 
-def main() -> int:
+async def main() -> int:
     print('--- golden queries (expected book in top 3) ---')
     misses, relevant_scores = [], []
     for query, expected in GOLDEN.items():
-        hits = search_catalog(query, limit=3)
+        hits = await search_catalog(query, limit=3)
         rank = next((i for i, h in enumerate(hits) if expected.lower() in h['title'].lower()), None)
         relevant_scores.append(hits[0]['score'])
         misses.extend([query] if rank is None else [])
@@ -59,7 +60,7 @@ def main() -> int:
     print('--- off-topic queries (expect scores below the threshold) ---')
     off_scores = []
     for query in OFF_TOPIC:
-        top = search_catalog(query, limit=1)[0]
+        top = (await search_catalog(query, limit=1))[0]
         off_scores.append(top['score'])
         print(f'       | top {top["score"]:.3f} {top["title"][:42]:42} | {query}')
 
@@ -70,4 +71,4 @@ def main() -> int:
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(asyncio.run(main()))

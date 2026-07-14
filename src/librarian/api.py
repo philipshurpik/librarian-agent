@@ -26,7 +26,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
     """The client carries the history (raw OpenAI message dicts) and sends it back with each turn."""
     messages = [*request.history, {'role': 'user', 'content': request.message}]
     produced = await loop.run(messages)
-    return ChatResponse(reply=produced[-1]['content'], history=[*messages, *produced])
+    return ChatResponse(reply=produced[-1]['content'] or '', history=[*messages, *produced])
 
 
 @app.get('/health')

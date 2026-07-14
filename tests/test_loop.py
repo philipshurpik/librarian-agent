@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import json
 from types import SimpleNamespace
@@ -24,28 +23,31 @@ class FakeOpenAI:
         return SimpleNamespace(choices=[SimpleNamespace(message=self.script.pop(0))])
 
 
-def run_agent(monkeypatch, script, user='find me a kafka book'):
+async def run_agent(monkeypatch, script, user='find me a kafka book'):
     fake = FakeOpenAI(script)
-    monkeypatch.setattr(loop, 'AsyncOpenAI', lambda api_key: fake)
-    produced = asyncio.run(loop.run([{'role': 'user', 'content': user}]))
+    monkeypatch.setattr(loop, 'AsyncOpenAI', lambda **kwargs: fake)
+    produced = await loop.run([{'role': 'user', 'content': user}])
     return fake, produced
 
 
-def test_plain_answer_needs_no_tools(monkeypatch):
-    fake, produced = run_agent(monkeypatch, [message(content='Hello! How can I help?')])
+async def test_plain_answer_needs_no_tools(monkeypatch):
+    fake, produced = await run_agent(monkeypatch, [message(content='Hello! How can I help?')])
 
     assert produced == [{'role': 'assistant', 'content': 'Hello! How can I help?'}]
     assert fake.requests[0]['messages'][0]['role'] == 'system'
     assert fake.requests[0]['tools'] == tools.TOOL_SCHEMAS
 
 
-def test_tool_round_trip(monkeypatch):
-    monkeypatch.setattr(tools, 'search_catalog', lambda query: [{'book_id': 'bk-1', 'title': 'Kafka Guide'}])
+async def test_tool_round_trip(monkeypatch):
+    async def fake_search(query):
+        return [{'book_id': 'bk-1', 'title': 'Kafka Guide'}]
+
+    monkeypatch.setattr(tools, 'search_catalog', fake_search)
     script = [
         message(tool_calls=[tool_call('call-1', 'search_catalog', query='kafka')]),
         message(content='We have the Kafka Guide.'),
     ]
-    fake, produced = run_agent(monkeypatch, script)
+    fake, produced = await run_agent(monkeypatch, script)
 
     assert [m['role'] for m in produced] == ['assistant', 'tool', 'assistant']
     assert produced[1]['tool_call_id'] == 'call-1'
@@ -54,8 +56,8 @@ def test_tool_round_trip(monkeypatch):
     assert produced[2]['content'] == 'We have the Kafka Guide.'
 
 
-def test_tool_errors_feed_back_to_model(monkeypatch):
-    def boom(query):
+async def test_tool_errors_feed_back_to_model(monkeypatch):
+    async def boom(query):
         raise RuntimeError('qdrant down')
 
     monkeypatch.setattr(tools, 'search_catalog', boom)
@@ -63,18 +65,21 @@ def test_tool_errors_feed_back_to_model(monkeypatch):
         message(tool_calls=[tool_call('c-1', 'search_catalog', query='kafka'), tool_call('c-2', 'no_such_tool')]),
         message(content='Sorry, having trouble searching right now.'),
     ]
-    _, produced = run_agent(monkeypatch, script)
+    _, produced = await run_agent(monkeypatch, script)
 
     assert json.loads(produced[1]['content']) == {'error': 'RuntimeError: qdrant down'}
     assert json.loads(produced[2]['content']) == {'error': 'unknown tool: no_such_tool'}
     assert produced[3]['content'] == 'Sorry, having trouble searching right now.'
 
 
-def test_max_rounds_forces_text_answer(monkeypatch):
-    monkeypatch.setattr(tools, 'search_catalog', lambda query: [])
+async def test_max_rounds_forces_text_answer(monkeypatch):
+    async def fake_search(query):
+        return []
+
+    monkeypatch.setattr(tools, 'search_catalog', fake_search)
     searching = message(tool_calls=[tool_call('c', 'search_catalog', query='x')])
     script = [searching] * loop._MAX_TOOL_ROUNDS + [message(content='Best I could find.')]
-    fake, produced = run_agent(monkeypatch, script)
+    fake, produced = await run_agent(monkeypatch, script)
 
     assert produced[-1] == {'role': 'assistant', 'content': 'Best I could find.'}
     assert 'tools' not in fake.requests[-1]  # final call forbids further tool use

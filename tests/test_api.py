@@ -30,3 +30,11 @@ def test_chat_replies_and_threads_history(monkeypatch):
     followup = client.post('/chat', json={'message': 'reserve it', 'history': body['history']}).json()
     assert loop_inputs[1] == [*body['history'], {'role': 'user', 'content': 'reserve it'}]
     assert len(followup['history']) == len(body['history']) + 4  # prior turn + user + 3 produced
+
+
+def test_chat_tolerates_empty_final_content(monkeypatch):
+    async def fake_run(messages):
+        return [{'role': 'assistant', 'content': None}]
+
+    monkeypatch.setattr(api.loop, 'run', fake_run)
+    assert client.post('/chat', json={'message': 'hi'}).json()['reply'] == ''

@@ -1,7 +1,7 @@
 from contextlib import closing
 from functools import cache
 
-from qdrant_client import QdrantClient
+from qdrant_client import AsyncQdrantClient
 
 from librarian.config import settings
 from librarian.storage import db, embeddings, vector_store
@@ -11,7 +11,7 @@ _WEAK_SCORE = 0.405  # midpoint of the F2-best threshold band measured by evals/
 
 
 @cache
-def _qdrant() -> QdrantClient:
+def _qdrant() -> AsyncQdrantClient:
     return vector_store.get_client()
 
 
@@ -34,9 +34,9 @@ _SEARCH_SCHEMA = {
 }
 
 
-def search_catalog(query: str, limit: int = 5) -> list[dict]:
+async def search_catalog(query: str, limit: int = 5) -> list[dict]:
     """Best-matching books for a free-text query."""
-    hits = vector_store.search(_qdrant(), embeddings.embed_query(query), limit=limit)
+    hits = await vector_store.search(_qdrant(), await embeddings.embed_query(query), limit=limit)
     return [_result(h) for h in hits]
 
 
@@ -54,7 +54,7 @@ _AVAILABILITY_SCHEMA = {
 }
 
 
-def check_availability(book_id: str) -> dict:
+async def check_availability(book_id: str) -> dict:
     with closing(db.connect(settings.sqlite_path)) as conn:
         row = db.get_book(conn, book_id)
     if row is None:
@@ -76,7 +76,7 @@ _RESERVE_SCHEMA = {
 }
 
 
-def reserve_book(book_id: str) -> dict:
+async def reserve_book(book_id: str) -> dict:
     """Reserve one copy; the UPDATE is atomic, so concurrent requests cannot oversell."""
     with closing(db.connect(settings.sqlite_path)) as conn:
         if db.get_book(conn, book_id) is None:
@@ -113,10 +113,11 @@ _RECOMMEND_SCHEMA = {
 }
 
 
-def recommend(interests: str, topic: str | None = None, level: str | None = None, limit: int = 3) -> dict:
+async def recommend(interests: str, topic: str | None = None, level: str | None = None, limit: int = 3) -> dict:
     """Search + availability, with an honesty note when filtered matches are weak or absent."""
     filters = {k: v for k, v in (('topic', topic), ('level', level)) if v}
-    hits = vector_store.search(_qdrant(), embeddings.embed_query(interests), limit=limit, filters=filters or None)
+    vector = await embeddings.embed_query(interests)
+    hits = await vector_store.search(_qdrant(), vector, limit=limit, filters=filters or None)
     with closing(db.connect(settings.sqlite_path)) as conn:
         results = [_result(h) | {'available': db.get_book(conn, h['book_id'])['available']} for h in hits]
     if not results:

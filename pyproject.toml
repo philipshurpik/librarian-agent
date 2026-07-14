@@ -16,6 +16,7 @@ dependencies = [
 dev = [
     "httpx2>=2.6.0",
     "pytest>=8.3",
+    "pytest-asyncio>=1.4.0",
     "ruff>=0.8",
     "scikit-learn>=1.9.0",
 ]
@@ -43,3 +44,4 @@ inline-quotes = "single"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+asyncio_mode = "auto"

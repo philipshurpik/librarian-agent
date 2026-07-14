@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 
@@ -10,17 +11,18 @@ from librarian.config import settings
 logger = logging.getLogger('agent')
 
 _MAX_TOOL_ROUNDS = 6
+_LLM_TIMEOUT_SECONDS = 60
 
 _TOOL_NAMES = {schema['function']['name'] for schema in tools.TOOL_SCHEMAS}
 
 
-def _execute(call) -> str:
+async def _execute(call) -> str:
     """Failures return as tool content for the model to recover from — a bad call never breaks the request."""
     name = call.function.name
     if name not in _TOOL_NAMES:
         return json.dumps({'error': f'unknown tool: {name}'})
     try:
-        return json.dumps(getattr(tools, name)(**json.loads(call.function.arguments)))
+        return json.dumps(await getattr(tools, name)(**json.loads(call.function.arguments)))
     except Exception as e:
         logger.warning(f'tool {name} failed: {type(e).__name__}: {e}')
         return json.dumps({'error': f'{type(e).__name__}: {e}'})
@@ -38,7 +40,7 @@ def _as_dict(message) -> dict:
 
 async def run(messages: list[dict]) -> list[dict]:
     """Advance the conversation by one agent turn; returns only the newly produced messages."""
-    client = AsyncOpenAI(api_key=settings.openai_api_key)
+    client = AsyncOpenAI(api_key=settings.openai_api_key, timeout=_LLM_TIMEOUT_SECONDS)
     conversation = [{'role': 'system', 'content': SYSTEM_PROMPT}, *messages]
     produced: list[dict] = []
     for _ in range(_MAX_TOOL_ROUNDS):
@@ -52,8 +54,9 @@ async def run(messages: list[dict]) -> list[dict]:
         if not message.tool_calls:
             return produced
         logger.info(f'tool calls: {[c.function.name for c in message.tool_calls]}')
-        for call in message.tool_calls:
-            tool_message = {'role': 'tool', 'tool_call_id': call.id, 'content': _execute(call)}
+        contents = await asyncio.gather(*(_execute(call) for call in message.tool_calls))
+        for call, content in zip(message.tool_calls, contents):
+            tool_message = {'role': 'tool', 'tool_call_id': call.id, 'content': content}
             conversation.append(tool_message)
             produced.append(tool_message)
 
