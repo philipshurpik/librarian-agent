@@ -2,6 +2,7 @@ import json
 import logging
 from collections.abc import Callable
 from contextlib import closing
+from hashlib import sha256
 from pathlib import Path
 from textwrap import wrap
 
@@ -71,18 +72,38 @@ def build_chunks(book: Book, max_chars: int) -> list[str]:
     return [f'{prefix}\n\n{chunk}' for chunk in _chunk_text(book.description, max_chars)]
 
 
+def _content_hash(chunks: list[str]) -> str:
+    """Chunks content only - what we store in qdrant embeddings"""
+    return sha256('\x00'.join(chunks).encode()).hexdigest()
+
+
 def run() -> None:
     books = dedupe_books(load_books(settings.catalog_path))
-    with closing(db.connect(settings.sqlite_path)) as conn:
-        db.upsert_books(conn, books)
-    logger.info(f'upserted {len(books)} books into {settings.sqlite_path}')
+    chunks_by_book = {b.id: build_chunks(b, settings.chunk_max_chars) for b in books}
+    hashes = {b.id: _content_hash(chunks_by_book[b.id]) for b in books}
 
-    chunks = [(b, idx, text) for b in books for idx, text in enumerate(build_chunks(b, settings.chunk_max_chars))]
-    vecs = embeddings.embed_batch([text for _, _, text in chunks])
-    client = vector_store.get_client()
-    vector_store.ensure_collection(client, dim=len(vecs[0]))
-    vector_store.upsert_chunks(client, chunks, vecs)
-    logger.info(f'embedded and upserted {len(chunks)} chunks into qdrant collection "{settings.qdrant_collection}"')
+    with closing(db.connect(settings.sqlite_path)) as conn:
+        ledger = db.load_ledger(conn, [b.id for b in books])
+        db.upsert_books(conn, books)
+        logger.info(f'sqlite: upserted {len(books)} books')
+
+        client = vector_store.get_client()
+        # fresh_index fires for first ever run and for embedding model switch (model name is part of qdrant_collection)
+        fresh_index = not client.collection_exists(settings.qdrant_collection)
+        changed = [b for b in books if fresh_index or ledger.get(b.id, ('', 0))[0] != hashes[b.id]]
+        if not changed:
+            logger.info(f'index up to date: {len(books)} books unchanged')
+            return
+
+        chunks = [(b, idx, text) for b in changed for idx, text in enumerate(chunks_by_book[b.id])]
+        vecs = embeddings.embed_batch([text for _, _, text in chunks])
+        vector_store.ensure_collection(client, dim=len(vecs[0]))
+        vector_store.upsert_chunks(client, chunks, vecs)
+        orphans = [(b.id, i) for b in changed for i in range(len(chunks_by_book[b.id]), ledger.get(b.id, ('', 0))[1])]
+        if orphans:
+            vector_store.delete_points(client, orphans)  # tails of books whose chunk count shrank
+        db.update_ledger(conn, {b.id: (hashes[b.id], len(chunks_by_book[b.id])) for b in changed})
+        logger.info(f'upsert {len(chunks)} chunks for {len(changed)} books ({len(books) - len(changed)} unchanged)')
 
 
 if __name__ == '__main__':

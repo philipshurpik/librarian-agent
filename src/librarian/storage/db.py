@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from pathlib import Path
 
@@ -12,7 +13,9 @@ CREATE TABLE IF NOT EXISTS books (
     year INTEGER,
     level TEXT,
     description TEXT,
-    available_units INTEGER NOT NULL DEFAULT 0
+    available_units INTEGER NOT NULL DEFAULT 0,
+    content_hash TEXT,
+    chunk_count INTEGER
 );
 """
 
@@ -40,6 +43,7 @@ def connect(path: str | Path) -> sqlite3.Connection:
 
 
 def upsert_books(conn: sqlite3.Connection, books: list[Book]) -> None:
+    """Ledger columns (content_hash, chunk_count) are untouched — see update_ledger."""
     rows = [
         (
             b.id,
@@ -54,4 +58,17 @@ def upsert_books(conn: sqlite3.Connection, books: list[Book]) -> None:
         for b in books
     ]
     conn.executemany(_UPSERT, rows)
+    conn.commit()
+
+
+def load_ledger(conn: sqlite3.Connection, ids: list[str]) -> dict[str, tuple[str | None, int]]:
+    """What each book (in delta we are currently processing) looked like when it was last indexed."""
+    query = 'SELECT id, content_hash, chunk_count FROM books WHERE id IN (SELECT value FROM json_each(?))'
+    return {book_id: (h, count or 0) for book_id, h, count in conn.execute(query, [json.dumps(ids)])}
+
+
+def update_ledger(conn: sqlite3.Connection, entries: dict[str, tuple[str, int]]) -> None:
+    """Written only after the index write succeeds — the ledger records what Qdrant actually contains."""
+    rows = [(h, count, book_id) for book_id, (h, count) in entries.items()]
+    conn.executemany('UPDATE books SET content_hash = ?, chunk_count = ? WHERE id = ?', rows)
     conn.commit()
